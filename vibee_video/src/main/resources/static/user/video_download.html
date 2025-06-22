@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>视频下载管理</title>
+    <link rel="stylesheet" href="../css/vibee-font.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+    <style>
+        body {
+            margin: 0;
+            background: #f6f8fb;
+            font-family: 'Microsoft YaHei', 'Arial', sans-serif;
+            color: #222;
+        }
+        .header {
+            background: #fff;
+            box-shadow: 0 2px 8px rgba(102,126,234,0.06);
+            padding: 0 2rem;
+            display: flex;
+            align-items: center;
+            height: 64px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .logo {
+            font-family: 'VibeeFont', sans-serif;
+            font-size: 2.5rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, #FF6B6B, #4ECDC4, #FFD93D, #FF6B6B);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradient 8s ease infinite, float 6s ease-in-out infinite, glow 3s ease-in-out infinite;
+            letter-spacing: 2px;
+            position: relative;
+            display: inline-block;
+            text-transform: uppercase;
+            padding: 0.5rem 1rem;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+        }
+        .search-box {
+            display: flex;
+            align-items: center;
+            max-width: 400px;
+            width: 100%;
+            margin-right: auto;
+        }
+        .search-box input {
+            width: 100%;
+            padding: 0.7rem 1.3rem;
+            border: 1.5px solid #e1e1e1;
+            border-radius: 24px;
+            font-size: 1rem;
+            outline: none;
+            transition: border 0.2s, box-shadow 0.2s;
+            background: #f7f9fc;
+        }
+        .search-box input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+        }
+        .user-avatar {
+            margin-left: 1.5rem;
+            position: relative;
+            justify-self: end;
+        }
+        .avatar-img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            cursor: pointer;
+            border: 2px solid #e1e1e1;
+            transition: border 0.2s;
+        }
+        .avatar-img:hover {
+            border-color: #667eea;
+        }
+        .user-menu {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 52px;
+            background: #fff;
+            box-shadow: 0 4px 16px rgba(102,126,234,0.13);
+            border-radius: 10px;
+            min-width: 140px;
+            z-index: 100;
+            padding: 0.5rem 0;
+        }
+        .user-avatar:hover .user-menu,
+        .user-avatar:focus-within .user-menu {
+            display: block;
+        }
+        .user-menu-item {
+            padding: 0.7rem 1.2rem;
+            color: #333;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+            white-space: nowrap;
+        }
+        .user-menu-item:hover {
+            background: #f3f6fd;
+            color: #667eea;
+        }
+        
+        .main-content {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+        
+        .download-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .download-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #333;
+        }
+        .download-actions {
+            display: flex;
+            gap: 1rem;
+        }
+        .download-action-btn {
+            background: #f3f6fd;
+            color: #667eea;
+            border: none;
+            border-radius: 10px;
+            padding: 0.6rem 1.2rem;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .download-action-btn:hover {
+            background: #e6ebfd;
+        }
+        .download-action-btn.danger {
+            color: #ff5252;
+        }
+        .download-action-btn.danger:hover {
+            background: #fff2f2;
+        }
+        
+        .storage-info {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(102,126,234,0.07);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .storage-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 1rem;
+        }
+        .storage-progress {
+            height: 10px;
+            background: #f0f0f0;
+            border-radius: 10px;
+            margin-bottom: 0.7rem;
+            overflow: hidden;
+        }
+        .storage-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #4ECDC4 0%, #667eea 100%);
+            border-radius: 10px;
+        }
+        .storage-details {
+            display: flex;
+            justify-content: space-between;
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .download-tabs {
+            display: flex;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid #e0e0e0;
+            overflow-x: auto;
+        }
+        .download-tab {
+            padding: 1rem 1.5rem;
+            cursor: pointer;
+            color: #757575;
+            position: relative;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+        .download-tab.active {
+            color: #667eea;
+        }
+        .download-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: #667eea;
+        }
+        
+        .download-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+        .card {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(102,126,234,0.07);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        .card:hover {
+            box-shadow: 0 8px 24px rgba(102,126,234,0.15);
+            transform: translateY(-5px);
+        }
+        .card-img-container {
+            position: relative;
+            width: 100%;
+            height: 160px;
+        }
+        .card-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .card-select {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: 22px;
+            height: 22px;
+            cursor: pointer;
+            border-radius: 4px;
+            border: 2px solid rgba(255,255,255,0.8);
+            background: rgba(0,0,0,0.2);
+            transition: all 0.2s;
+        }
+        .card-select:checked {
+            background: #667eea;
+            border-color: #667eea;
+        }
+        .card-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(102,126,234,0.9);
+            color: white;
+            border-radius: 20px;
+            padding: 0.2rem 0.8rem;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        .card-badge.new {
+            background: rgba(76, 175, 80, 0.9);
+        }
+        .card-badge.hd {
+            background: rgba(255, 152, 0, 0.9);
+        }
+        .video-duration {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+        .card-body {
+            padding: 1.2rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.8rem;
+            color: #333;
+            line-height: 1.4;
+        }
+        .card-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.8rem;
+            color: #666;
+            font-size: 0.9rem;
+        }
+        .card-resolution {
+            background: #f3f6fd;
+            color: #667eea;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        .card-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        .card-btn {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            background: #f3f6fd;
+            color: #667eea;
+            border: none;
+            border-radius: 8px;
+            padding: 0.5rem 0;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .card-btn:hover {
+            background: #e6ebfd;
+        }
+        .card-btn.primary {
+            background: linear-gradient(90deg, #4ECDC4 0%, #667eea 100%);
+            color: white;
+        }
+        .card-btn.primary:hover {
+            background: linear-gradient(90deg, #667eea 0%, #4ECDC4 100%);
+        }
+        .card-btn.danger {
+            color: #ff5252;
+        }
+        .card-btn.danger:hover {
+            background: #fff2f2;
+        }
+        
+        .download-progress {
+            margin-top: 0.8rem;
+            height: 6px;
+            background: #f0f0f0;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        .download-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #4ECDC4 0%, #667eea 100%);
+            border-radius: 6px;
+        }
+        .download-status {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 0.5rem;
+            color: #666;
+            font-size: 0.8rem;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 3rem 0;
+            color: #757575;
+        }
+        .empty-state i {
+            font-size: 4rem;
+            color: #e0e0e0;
+            margin-bottom: 1rem;
+        }
+        .empty-state h3 {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            color: #424242;
+        }
+        .empty-state p {
+            font-size: 1rem;
+            max-width: 400px;
+            margin: 0 auto 1.5rem;
+        }
+        .empty-state-btn {
+            background: linear-gradient(90deg, #4ECDC4 0%, #667eea 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 0.7rem 1.5rem;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .empty-state-btn:hover {
+            background: linear-gradient(90deg, #667eea 0%, #4ECDC4 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102,126,234,0.2);
+        }
+        
+        @media (max-width: 768px) {
+            .download-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .download-tabs {
+                width: 100%;
+            }
+        }
+        @media (max-width: 480px) {
+            .header {
+                flex-direction: column;
+                height: auto;
+                padding: 0.5rem 0.5rem;
+                align-items: stretch;
+            }
+            .logo {
+                margin-bottom: 0.5rem;
+            }
+            .search-box {
+                max-width: 100%;
+            }
+            .user-avatar {
+                margin-left: 0;
+                margin-top: 0.5rem;
+                align-self: flex-end;
+                justify-self: end;
+            }
+            .card-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">
+            Vi<span class="bee-body">bee</span>
+        </div>
+        <div class="user-avatar" tabindex="0">
+            <img class="avatar-img" src="../images/default-avatar.svg" alt="用户头像">
+            <div class="user-menu">
+                <div class="user-menu-item" onclick="window.location.href='../visitor/login.html'">登录</div>
+                <div class="user-menu-item" onclick="window.location.href='../visitor/email_register.html'">注册</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="main-content">
+        <div class="download-header">
+            <div class="download-title">下载管理</div>
+            <div class="download-actions">
+                <button class="download-action-btn" id="select-all-btn">
+                    <i class="bi bi-check-square"></i> 全选
+                </button>
+                <button class="download-action-btn danger" id="delete-selected-btn" disabled>
+                    <i class="bi bi-trash"></i> 删除所选
+                </button>
+            </div>
+        </div>
+        
+        <div class="storage-info">
+            <div class="storage-title">
+                <i class="bi bi-hdd"></i> 存储空间
+            </div>
+            <div class="storage-progress">
+                <div class="storage-progress-bar" style="width: 65%;"></div>
+            </div>
+            <div class="storage-details">
+                <div>已使用: 6.5GB / 10GB</div>
+                <div>共12个视频文件</div>
+            </div>
+        </div>
+        
+        <div class="download-tabs">
+            <div class="download-tab active">全部视频</div>
+            <div class="download-tab">高清视频</div>
+            <div class="download-tab">标清视频</div>
+            <div class="download-tab">已完成</div>
+            <div class="download-tab">下载中</div>
+            <div class="download-tab">暂停</div>
+        </div>
+        
+        <div class="download-grid">
+            <div class="card">
+                <div class="card-img-container">
+                    <input type="checkbox" class="card-select" aria-label="选择视频">
+                    <img class="card-img" src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=400&q=80" alt="视频封面">
+                    <span class="card-badge hd">1080P</span>
+                    <div class="video-duration">10:25</div>
+                </div>
+                <div class="card-body">
+                    <h3 class="card-title">2024年最值得一看的旅行风景视频</h3>
+                    <div class="card-info">
+                        <span>2024-06-13</span>
+                        <span>128MB</span>
+                    </div>
+                    <div class="card-actions">
+                        <button class="card-btn">
+                            <i class="bi bi-play-fill"></i> 播放
+                        </button>
+                        <button class="card-btn primary">
+                            <i class="bi bi-download"></i> 重新下载
+                        </button>
+                        <button class="card-btn danger">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-img-container">
+                    <input type="checkbox" class="card-select" aria-label="选择视频">
+                    <img class="card-img" src="https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=400&q=80" alt="视频封面">
+                    <span class="card-badge hd">4K</span>
+                    <div class="video-duration">23:15</div>
+                </div>
+                <div class="card-body">
+                    <h3 class="card-title">自然风光摄影技巧全解析</h3>
+                    <div class="card-info">
+                        <span>2024-06-12</span>
+                        <span>256MB</span>
+                    </div>
+                    <div class="card-actions">
+                        <button class="card-btn">
+                            <i class="bi bi-play-fill"></i> 播放
+                        </button>
+                        <button class="card-btn primary">
+                            <i class="bi bi-download"></i> 重新下载
+                        </button>
+                        <button class="card-btn danger">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-img-container">
+                    <input type="checkbox" class="card-select" aria-label="选择视频">
+                    <img class="card-img" src="https://images.unsplash.com/photo-1531297484001-80022131f5a1?auto=format&fit=crop&w=400&q=80" alt="视频封面">
+                    <span class="card-badge new">正在下载</span>
+                    <div class="video-duration">18:42</div>
+                </div>
+                <div class="card-body">
+                    <h3 class="card-title">科技行业的未来发展趋势解析</h3>
+                    <div class="card-info">
+                        <span>2024-06-14</span>
+                        <span>320MB</span>
+                    </div>
+                    <div class="download-progress">
+                        <div class="download-progress-bar" style="width: 65%;"></div>
+                    </div>
+                    <div class="download-status">
+                        <span>已下载: 208MB / 320MB</span>
+                        <span>65%</span>
+                    </div>
+                    <div class="card-actions" style="margin-top: 0.8rem;">
+                        <button class="card-btn">
+                            <i class="bi bi-pause-fill"></i> 暂停
+                        </button>
+                        <button class="card-btn danger">
+                            <i class="bi bi-x-lg"></i> 取消
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-img-container">
+                    <input type="checkbox" class="card-select" aria-label="选择视频">
+                    <img class="card-img" src="https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=400&q=80" alt="视频封面">
+                    <span class="card-badge">暂停</span>
+                    <div class="video-duration">15:33</div>
+                </div>
+                <div class="card-body">
+                    <h3 class="card-title">如何培养高效的学习和工作习惯</h3>
+                    <div class="card-info">
+                        <span>2024-06-14</span>
+                        <span>180MB</span>
+                    </div>
+                    <div class="download-progress">
+                        <div class="download-progress-bar" style="width: 30%;"></div>
+                    </div>
+                    <div class="download-status">
+                        <span>已下载: 54MB / 180MB</span>
+                        <span>30%</span>
+                    </div>
+                    <div class="card-actions" style="margin-top: 0.8rem;">
+                        <button class="card-btn primary">
+                            <i class="bi bi-play-fill"></i> 继续
+                        </button>
+                        <button class="card-btn danger">
+                            <i class="bi bi-x-lg"></i> 取消
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 选项卡切换
+        document.querySelectorAll('.download-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.download-tab').forEach(t => {
+                    t.classList.remove('active');
+                });
+                this.classList.add('active');
+                
+                // 在实际应用中，这里会根据选择的标签筛选不同的下载内容
+            });
+        });
+        
+        // 视频选择与批量操作
+        const selectAllBtn = document.getElementById('select-all-btn');
+        const deleteSelectedBtn = document.getElementById('delete-selected-btn');
+        const checkboxes = document.querySelectorAll('.card-select');
+        
+        function updateDeleteButton() {
+            const selectedCount = document.querySelectorAll('.card-select:checked').length;
+            deleteSelectedBtn.disabled = selectedCount === 0;
+            
+            if (selectedCount > 0) {
+                deleteSelectedBtn.innerHTML = `<i class="bi bi-trash"></i> 删除所选(${selectedCount})`;
+            } else {
+                deleteSelectedBtn.innerHTML = `<i class="bi bi-trash"></i> 删除所选`;
+            }
+        }
+        
+        selectAllBtn.addEventListener('click', function() {
+            const allChecked = [...checkboxes].every(checkbox => checkbox.checked);
+            
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = !allChecked;
+            });
+            
+            updateDeleteButton();
+        });
+        
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', updateDeleteButton);
+        });
+        
+        deleteSelectedBtn.addEventListener('click', function() {
+            if (confirm('确定要删除所选视频吗？')) {
+                document.querySelectorAll('.card-select:checked').forEach(checkbox => {
+                    const card = checkbox.closest('.card');
+                    card.style.opacity = '0';
+                    setTimeout(() => {
+                        card.remove();
+                        
+                        // 检查是否还有视频卡片
+                        if (document.querySelectorAll('.card').length === 0) {
+                            document.querySelector('.download-grid').innerHTML = `
+                                <div class="empty-state">
+                                    <i class="bi bi-download"></i>
+                                    <h3>暂无下载内容</h3>
+                                    <p>你可以从视频页面选择喜欢的视频进行下载</p>
+                                    <button class="empty-state-btn" onclick="window.location.href='../video/video_initial.html'">
+                                        <i class="bi bi-collection-play"></i> 浏览视频
+                                    </button>
+                                </div>
+                            `;
+                        }
+                    }, 300);
+                });
+                
+                updateDeleteButton();
+            }
+        });
+        
+        // 单个删除按钮
+        document.querySelectorAll('.card-btn.danger').forEach(btn => {
+            btn.addEventListener('click', function() {
+                if (confirm('确定要删除此视频吗？')) {
+                    const card = this.closest('.card');
+                    card.style.opacity = '0';
+                    setTimeout(() => {
+                        card.remove();
+                        
+                        // 检查是否还有视频卡片
+                        if (document.querySelectorAll('.card').length === 0) {
+                            document.querySelector('.download-grid').innerHTML = `
+                                <div class="empty-state">
+                                    <i class="bi bi-download"></i>
+                                    <h3>暂无下载内容</h3>
+                                    <p>你可以从视频页面选择喜欢的视频进行下载</p>
+                                    <button class="empty-state-btn" onclick="window.location.href='../video/video_initial.html'">
+                                        <i class="bi bi-collection-play"></i> 浏览视频
+                                    </button>
+                                </div>
+                            `;
+                        }
+                    }, 300);
+                }
+            });
+        });
+    </script>
+</body>
+</html> 

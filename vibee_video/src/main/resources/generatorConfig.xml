@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE generatorConfiguration
+        PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
+        "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
+
+<generatorConfiguration>
+    <!-- 引入数据库连接配置 -->
+    <!-- <properties resource="application.yml"></properties> -->
+
+    <context id="SQLServerContext" targetRuntime="MyBatis3">
+        <!-- 这是为了防止生成的SQL中表名和字段名被加上引号 -->
+        <property name="beginningDelimiter" value="["/>
+        <property name="endingDelimiter" value="]"/>
+
+        <commentGenerator>
+            <!-- 是否去除自动生成的注释 true：是, false：否 -->
+            <property name="suppressAllComments" value="true"/>
+            <property name="suppressDate" value="true"/>
+        </commentGenerator>
+
+        <!-- 
+          数据库连接信息 
+          使用 SQL Server 身份验证
+        -->
+        <jdbcConnection driverClass="com.microsoft.sqlserver.jdbc.SQLServerDriver"
+                        connectionURL="jdbc:sqlserver://JARVIS;databaseName=VibeeVideoPlatform;encrypt=true;trustServerCertificate=true"
+                        userId="vibee_user"
+                        password="123456">
+        </jdbcConnection>
+
+        <javaTypeResolver>
+            <property name="forceBigDecimals" value="false"/>
+        </javaTypeResolver>
+
+        <!-- 1. 实体类 (Model) 生成器 -->
+        <javaModelGenerator targetPackage="org.example.vibee.entity"
+                            targetProject="src/main/java">
+            <property name="enableSubPackages" value="true"/>
+            <property name="trimStrings" value="true"/>
+        </javaModelGenerator>
+
+        <!-- 2. XML 映射文件生成器 -->
+        <sqlMapGenerator targetPackage="mapper"
+                         targetProject="src/main/resources">
+            <property name="enableSubPackages" value="true"/>
+        </sqlMapGenerator>
+
+        <!-- 3. Mapper 接口 (DAO) 生成器 -->
+        <javaClientGenerator type="MAPPER"
+                             targetPackage="org.example.vibee.dao"
+                             targetProject="src/main/java">
+            <property name="enableSubPackages" value="true"/>
+        </javaClientGenerator>
+
+        <!-- 4. 需要生成代码的表配置 -->
+        <table tableName="video_category" domainObjectName="VideoCategory">
+            <generatedKey column="category_id" sqlStatement="JDBC" identity="true"/>
+        </table>
+        <table tableName="user" domainObjectName="User">
+            <generatedKey column="user_id" sqlStatement="JDBC" identity="true"/>
+        </table>
+        <table tableName="video" domainObjectName="Video">
+            <generatedKey column="video_id" sqlStatement="JDBC" identity="true"/>
+        </table>
+        <table tableName="friend_relation" domainObjectName="FriendRelation">
+            <generatedKey column="relation_id" sqlStatement="JDBC" identity="true"/>
+        </table>
+        <table tableName="watch_history" domainObjectName="WatchHistory">
+            <generatedKey column="history_id" sqlStatement="JDBC" identity="true"/>
+        </table>
+        <table tableName="video_like" domainObjectName="VideoLike">
+            <generatedKey column="record_id" sqlStatement="JDBC" identity="true"/>
+        </table>
+        <table tableName="video_collect" domainObjectName="VideoCollect">
+            <generatedKey column="record_id" sqlStatement="JDBC" identity="true"/>
+        </table>
+        <table tableName="video_commentary" domainObjectName="VideoCommentary">
+            <generatedKey column="interaction_id" sqlStatement="JDBC" identity="true"/>
+        </table>
+    </context>
+</generatorConfiguration>

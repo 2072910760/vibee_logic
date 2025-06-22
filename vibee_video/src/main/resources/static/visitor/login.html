@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录</title>
+    <link rel="stylesheet" href="../css/visitor.css">
+    <style>
+        /* =================================
+           页面专属样式
+        ==================================== */
+
+        /* 记住我/忘记密码 */
+        .remember-me {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 1.5rem 0 2.5rem;
+            font-size: 0.9rem;
+            color: #757575;
+        }
+        .remember-me input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            margin-right: 0.7rem;
+            accent-color: #a7d9f7;
+            cursor: pointer;
+        }
+        .remember-me label {
+            margin-bottom: 0;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+        .forgot-password {
+            color: #a7d9f7;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+        .forgot-password:hover {
+            color: #7ecaf7;
+            text-decoration: underline;
+        }
+
+        /* 社交登录 */
+        .social-login-divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            margin: 2.5rem 0;
+            color: #bdbdbd;
+        }
+        .social-login-divider::before, .social-login-divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid #eeeeee;
+        }
+        .social-login-divider:not(:empty)::before {
+            margin-right: 1.5rem;
+        }
+        .social-login-divider:not(:empty)::after {
+            margin-left: 1.5rem;
+        }
+
+        .social-login-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+        }
+        .social-login-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 1px solid #eeeeee;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .social-login-button:hover {
+            border-color: #a7d9f7;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+            transform: translateY(-2px);
+        }
+        .social-login-button img {
+            width: 28px;
+            height: 28px;
+        }
+
+        /* 协议文本 */
+        .agreement-text {
+            text-align: center;
+            margin-top: 2rem;
+            font-size: 0.8rem;
+            color: #b0b0b0;
+            line-height: 1.5;
+        }
+        .agreement-text a {
+            color: #a7d9f7;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+        .agreement-text a:hover {
+            text-decoration: underline;
+            color: #7ecaf7;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="modal-overlay">
+        <div class="login-modal">
+            <div class="modal-header">
+                <h2>登录</h2>
+                <span class="close-btn">&times;</span>
+            </div>
+            <div class="modal-content">
+                <div class="account-login-area">
+                    <h3 class="login-sub-title">账号密码登录</h3>
+                    <form id="loginForm">
+                        <div class="form-group">
+                            <label for="username">用户名/邮箱</label>
+                            <input type="text" id="username" name="username" placeholder="请输入用户名或邮箱" required>
+                            <div class="error-message">请输入用户名或邮箱</div>
+                        </div>
+                        <div class="form-group">
+                            <label for="password">密码</label>
+                            <input type="password" id="password" name="password" placeholder="请输入密码" required>
+                            <div class="error-message">密码不能为空</div>
+                            <div class="password-strength">
+                                <div class="password-strength-bar"></div>
+                            </div>
+                        </div>
+                        <div class="remember-me">
+                            <div>
+                                <input type="checkbox" id="remember" name="remember">
+                                <label for="remember">记住密码</label>
+                            </div>
+                            <a href="forgot_password.html" class="forgot-password">忘记密码？</a>
+                        </div>
+                        <button type="submit" class="primary-login-button">登录</button>
+                    </form>
+                    <div class="agreement-text">
+                        登录即表示同意<a href="#" class="forgot-password">《用户协议》</a>和<a href="#" class="forgot-password">《隐私政策》</a>
+                    </div>
+                    <div class="agreement-text">
+                        还没有账号？<a href="email_register.html" class="forgot-password">立即注册</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="toast"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const loginForm = document.getElementById('loginForm');
+            const usernameInput = document.getElementById('username');
+            const passwordInput = document.getElementById('password');
+            const rememberCheckbox = document.getElementById('remember');
+            const toast = document.querySelector('.toast');
+            const loginButton = document.querySelector('.primary-login-button');
+
+            // 从 localStorage 读取记住的用户名
+            if (localStorage.getItem('rememberedUsername')) {
+                usernameInput.value = localStorage.getItem('rememberedUsername');
+                rememberCheckbox.checked = true;
+            }
+
+            // 密码强度检查
+            passwordInput.addEventListener('input', function() {
+                const password = this.value;
+                const strengthBar = document.querySelector('.password-strength-bar');
+                
+                if (password.length === 0) {
+                    strengthBar.className = 'password-strength-bar';
+                    strengthBar.style.width = '0';
+                    return;
+                }
+
+                let strength = 0;
+                if (password.length >= 8) strength++;
+                if (password.match(/[a-z]/) && password.match(/[A-Z]/)) strength++;
+                if (password.match(/\d/) && password.match(/[^a-zA-Z\d]/)) strength++;
+
+                strengthBar.className = 'password-strength-bar';
+                if (strength === 1) {
+                    strengthBar.classList.add('weak');
+                } else if (strength === 2) {
+                    strengthBar.classList.add('medium');
+                } else if (strength === 3) {
+                    strengthBar.classList.add('strong');
+                }
+            });
+
+            // 表单验证
+            function showError(input, message) {
+                const formGroup = input.parentElement;
+                formGroup.classList.add('error');
+                formGroup.querySelector('.error-message').textContent = message;
+            }
+
+            function clearError(input) {
+                const formGroup = input.parentElement;
+                formGroup.classList.remove('error');
+            }
+
+            function showToast(message, duration = 3000) {
+                toast.textContent = message;
+                toast.classList.add('show');
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                }, duration);
+            }
+
+            loginForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                let isValid = true;
+                
+                if (!usernameInput.value) {
+                    showError(usernameInput, '请输入用户名或邮箱');
+                    isValid = false;
+                } else {
+                    clearError(usernameInput);
+                }
+
+                if (!passwordInput.value) {
+                    showError(passwordInput, '请输入密码');
+                    isValid = false;
+                } else {
+                    clearError(passwordInput);
+                }
+
+                if (!isValid) return;
+
+                // 显示加载状态
+                loginButton.classList.add('loading');
+                loginButton.textContent = '登录中...';
+
+                try {
+                    // 这里添加实际的登录请求
+                    await new Promise(resolve => setTimeout(resolve, 1500)); // 模拟请求
+                    
+                    if (rememberCheckbox.checked) {
+                        localStorage.setItem('rememberedUsername', usernameInput.value);
+                    } else {
+                        localStorage.removeItem('rememberedUsername');
+                    }
+                    
+                    showToast('登录成功！');
+                    // 登录成功后的跳转
+                    setTimeout(() => {
+                        window.location.href = '/dashboard.html'; // 假设登录成功跳转到dashboard.html
+                    }, 1000);
+                } catch (error) {
+                    showToast('登录失败，请检查用户名和密码');
+                } finally {
+                    loginButton.classList.remove('loading');
+                    loginButton.textContent = '登录';
+                }
+            });
+
+            // 关闭按钮
+            document.querySelector('.close-btn').addEventListener('click', function() {
+                window.location.href = '../video/video_initial.html';
+            });
+
+            // 表单提交处理
+            document.querySelectorAll('form').forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    const btn = form.querySelector('.primary-login-button');
+                    if (btn.disabled) return;
+                    btn.disabled = true;
+                    setTimeout(()=>{btn.disabled=false;}, 1500); // 防止重复提交
+                    // TODO: 处理表单提交逻辑
+                });
+            });
+        });
+    </script>
+</body>
+</html>

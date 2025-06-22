@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>关键词搜索</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="../css/common.css">
+    <style>
+        /* =================================
+           1. 页面专属内容区样式
+        ==================================== */
+        .content-header {
+            margin-bottom: 2rem;
+        }
+
+        .content-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .content-subtitle {
+            color: #666;
+            font-size: 1rem;
+        }
+        
+        /* =================================
+           2. 页面特有组件
+        ==================================== */
+        /* 搜索区域 */
+        .search-section {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(102,126,234,0.07);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .search-form {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 12px rgba(102,126,234,0.2);
+        }
+        
+        .search-input {
+            flex: 1;
+            padding: 1rem 1.5rem;
+            border: 2px solid #e1e1e1;
+            border-radius: 12px;
+            font-size: 1rem;
+            outline: none;
+            transition: border 0.2s, box-shadow 0.2s;
+        }
+        
+        .search-input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+        }
+        
+        .search-btn {
+            padding: 1rem 2rem;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .search-btn:hover {
+            background: #5a6fd8;
+            transform: translateY(-1px);
+        }
+        
+        /* 5.2 筛选器 */
+        .filters {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: #f3f6fd;
+            border: 1px solid #e1e1e1;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .filter-group:hover,
+        .filter-group.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        
+        /* 热门搜索 */
+        .hot-searches {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            margin-top: 1.5rem;
+        }
+        
+        .hot-search-tag {
+            padding: 0.5rem 1rem;
+            background: #f3f6fd;
+            border: 1px solid #e1e1e1;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #667eea;
+        }
+        
+        .hot-search-tag:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        
+        /* 5.3 搜索结果 */
+        .results-section {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(102,126,234,0.07);
+            padding: 2rem;
+        }
+        
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            font-size: 0.85rem;
+        }
+        
+        .results-count {
+            font-size: 1rem;
+            color: #666;
+        }
+        
+        .results-filter {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .filter-btn {
+            padding: 0.5rem 1rem;
+            background: #fff;
+            border: 1px solid #e1e1e1;
+            border-radius: 8px;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+        }
+        
+        .filter-btn:hover,
+        .filter-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        
+        /* 5.4 分页 */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 2rem;
+        }
+        
+        .page-btn {
+            padding: 0.5rem 1rem;
+            background: #fff;
+            border: 1px solid #e1e1e1;
+            border-radius: 8px;
+            color: #888;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+        }
+        
+        /* =================================
+           3. 响应式调整
+        ==================================== */
+        @media (max-width: 1024px) {
+            .search-form {
+                flex-direction: column;
+            }
+
+            .search-input {
+                width: 100%;
+                box-sizing: border-box;
+            }
+
+            .filters {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .search-form {
+                flex-direction: column;
+            }
+
+            .video-grid {
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+                gap: 1rem;
+            }
+
+            .main-content {
+                padding: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .video-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">
+            Vibee
+            <span class="bee bee-1">🐝</span>
+            <span class="bee bee-2">🐝</span>
+            <span class="bee bee-3">🐝</span>
+        </div>
+        <div class="user-avatar" tabindex="0">
+            <img class="avatar-img" src="../images/default-avatar.svg" alt="用户头像">
+            <div class="user-menu">
+                <div class="user-menu-item" onclick="window.location.href='../visitor/login.html'">登录</div>
+                <div class="user-menu-item" onclick="window.location.href='../visitor/email_register.html'">注册</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="layout-container">
+        <div class="sidebar">
+            <div class="sidebar-section">
+                <div class="sidebar-title">主要功能</div>
+                <ul class="sidebar-nav">
+                    <li class="sidebar-nav-item">
+                        <a href="video_initial.html" class="sidebar-nav-link">
+                            <i class="bi bi-house-door"></i>
+                            首页推荐
+                        </a>
+                    </li>
+                    <li class="sidebar-nav-item">
+                        <a href="video_keyword_search.html" class="sidebar-nav-link active">
+                            <i class="bi bi-search"></i>
+                            关键词搜索
+                        </a>
+                    </li>
+                    <li class="sidebar-nav-item">
+                        <a href="video_data_metrics.html" class="sidebar-nav-link">
+                            <i class="bi bi-graph-up"></i>
+                            数据统计
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="sidebar-section">
+                <div class="sidebar-title">用户中心</div>
+                <ul class="sidebar-nav">
+                    <li class="sidebar-nav-item">
+                        <a href="../user/edit_profile.html" class="sidebar-nav-link">
+                            <i class="bi bi-person"></i>
+                            个人资料
+                        </a>
+                    </li>
+                    <li class="sidebar-nav-item">
+                        <a href="../user/video_upload.html" class="sidebar-nav-link">
+                            <i class="bi bi-cloud-upload"></i>
+                            视频上传
+                        </a>
+                    </li>
+                    <li class="sidebar-nav-item">
+                        <a href="../user/liked_favorited_videos.html" class="sidebar-nav-link">
+                            <i class="bi bi-heart"></i>
+                            收藏视频
+                        </a>
+                    </li>
+                    <li class="sidebar-nav-item">
+                        <a href="../user/watch_history.html" class="sidebar-nav-link">
+                            <i class="bi bi-clock-history"></i>
+                            观看历史
+                        </a>
+                    </li>
+                    <li class="sidebar-nav-item">
+                        <a href="../user/friend_list.html" class="sidebar-nav-link">
+                            <i class="bi bi-people"></i>
+                            好友管理
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <div class="content-header">
+                <h1 class="content-title">关键词搜索</h1>
+                <p class="content-subtitle">快速找到你感兴趣的视频内容</p>
+            </div>
+            
+            <!-- 搜索区域 -->
+            <div class="search-section">
+                <form class="search-form">
+                    <input type="text" class="search-input" placeholder="输入关键词搜索视频..." id="searchInput">
+                    <button type="submit" class="search-btn">
+                        <i class="bi bi-search"></i>
+                        搜索
+                    </button>
+                </form>
+                
+                <!-- 搜索选项 -->
+                <div class="filters">
+                    <div class="filter-group active">
+                        <i class="bi bi-video"></i>
+                        视频
+                    </div>
+                    <div class="filter-group">
+                        <i class="bi bi-person"></i>
+                        用户
+                    </div>
+                    <div class="filter-group">
+                        <i class="bi bi-tag"></i>
+                        标签
+                    </div>
+                    <div class="filter-group">
+                        <i class="bi bi-collection"></i>
+                        频道
+                    </div>
+                </div>
+                
+                <!-- 热门搜索 -->
+                <div class="hot-searches">
+                    <span class="hot-search-tag">#旅行</span>
+                    <span class="hot-search-tag">#美食</span>
+                    <span class="hot-search-tag">#音乐</span>
+                    <span class="hot-search-tag">#科技</span>
+                    <span class="hot-search-tag">#教育</span>
+                    <span class="hot-search-tag">#游戏</span>
+                    <span class="hot-search-tag">#健身</span>
+                    <span class="hot-search-tag">#摄影</span>
+                </div>
+            </div>
+            
+            <!-- 搜索结果 -->
+            <div class="results-section" id="searchResults" style="display: none;">
+                <div class="results-header">
+                    <div class="results-count">找到 <span id="resultCount">0</span> 个相关视频</div>
+                    <div class="results-filter">
+                        <button class="filter-btn active">相关度</button>
+                        <button class="filter-btn">上传时间</button>
+                        <button class="filter-btn">观看次数</button>
+                        <button class="filter-btn">评分</button>
+                    </div>
+                </div>
+                
+                <div class="video-grid" id="videoGrid">
+                    <!-- 搜索结果将在这里动态显示 -->
+                </div>
+            </div>
+            
+            <!-- 默认显示推荐内容 -->
+            <div class="results-section" id="defaultResults">
+                <div class="results-header">
+                    <div class="results-count">推荐视频</div>
+                    <div class="results-filter">
+                        <button class="filter-btn active">最新</button>
+                        <button class="filter-btn">热门</button>
+                        <button class="filter-btn">推荐</button>
+                    </div>
+                </div>
+                
+                <div class="video-grid">
+                    <div class="video-card" onclick="window.location.href='video_detail.html'">
+                        <div class="video-thumbnail">
+                            <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=400&q=80" alt="视频封面">
+                            <div class="video-duration">12:34</div>
+                        </div>
+                        <div class="video-info">
+                            <h3 class="video-title">2024年最值得一看的旅行风景视频合集</h3>
+                            <div class="video-channel">
+                                <img class="channel-avatar" src="https://www.gravatar.com/avatar?d=identicon&s=24" alt="频道头像">
+                                <span class="channel-name">旅行频道</span>
+                            </div>
+                            <div class="video-meta">
+                                <div class="video-stats">
+                                    <span>1.2万次观看</span>
+                                    <span>3天前</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="video-card" onclick="window.location.href='video_detail.html'">
+                        <div class="video-thumbnail">
+                            <img src="https://images.unsplash.com/photo-1531297484001-80022131f5a1?auto=format&fit=crop&w=400&q=80" alt="视频封面">
+                            <div class="video-duration">8:45</div>
+                        </div>
+                        <div class="video-info">
+                            <h3 class="video-title">科技行业的未来发展趋势深度解析</h3>
+                            <div class="video-channel">
+                                <img class="channel-avatar" src="https://www.gravatar.com/avatar?d=wavatar&s=24" alt="频道头像">
+                                <span class="channel-name">科技前沿</span>
+                            </div>
+                            <div class="video-meta">
+                                <div class="video-stats">
+                                    <span>5.6万次观看</span>
+                                    <span>1周前</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="video-card" onclick="window.location.href='video_detail.html'">
+                        <div class="video-thumbnail">
+                            <img src="https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=400&q=80" alt="视频封面">
+                            <div class="video-duration">15:22</div>
+                        </div>
+                        <div class="video-info">
+                            <h3 class="video-title">学习自然风光摄影的实用技巧教程</h3>
+                            <div class="video-channel">
+                                <img class="channel-avatar" src="https://www.gravatar.com/avatar?d=monsterid&s=24" alt="频道头像">
+                                <span class="channel-name">摄影教程</span>
+                            </div>
+                            <div class="video-meta">
+                                <div class="video-stats">
+                                    <span>2.8万次观看</span>
+                                    <span>2周前</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // 搜索功能
+        const searchForm = document.querySelector('.search-form');
+        const searchInput = document.getElementById('searchInput');
+        const searchResults = document.getElementById('searchResults');
+        const defaultResults = document.getElementById('defaultResults');
+        const resultCount = document.getElementById('resultCount');
+        const videoGrid = document.getElementById('videoGrid');
+        
+        searchForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const query = searchInput.value.trim();
+            if (query) {
+                performSearch(query);
+            }
+        });
+        
+        // 热门搜索标签点击
+        document.querySelectorAll('.hot-search-tag').forEach(tag => {
+            tag.addEventListener('click', function() {
+                const query = this.textContent.replace('#', '');
+                searchInput.value = query;
+                performSearch(query);
+            });
+        });
+        
+        // 搜索选项切换
+        document.querySelectorAll('.filter-group').forEach(group => {
+            group.addEventListener('click', function() {
+                document.querySelectorAll('.filter-group').forEach(g => g.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+        
+        // 筛选按钮切换
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const parent = this.closest('.results-filter');
+                parent.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+        
+        function performSearch(query) {
+            // 模拟搜索功能
+            console.log('搜索:', query);
+            
+            // 显示搜索结果，隐藏默认结果
+            searchResults.style.display = 'block';
+            defaultResults.style.display = 'none';
+            
+            // 模拟搜索结果
+            const mockResults = [
+                {
+                    title: `搜索结果：${query}`,
+                    channel: '搜索结果频道',
+                    views: '1.5万次观看',
+                    time: '1天前',
+                    duration: '10:30',
+                    thumbnail: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=400&q=80'
+                },
+                {
+                    title: `关于${query}的精彩视频`,
+                    channel: '相关频道',
+                    views: '8.9万次观看',
+                    time: '3天前',
+                    duration: '15:45',
+                    thumbnail: 'https://images.unsplash.com/photo-1531297484001-80022131f5a1?auto=format&fit=crop&w=400&q=80'
+                }
+            ];
+            
+            resultCount.textContent = mockResults.length;
+            
+            // 生成搜索结果HTML
+            videoGrid.innerHTML = mockResults.map(video => `
+                <div class="video-card">
+                    <div class="video-thumbnail">
+                        <img src="${video.thumbnail}" alt="视频封面">
+                        <div class="video-duration">${video.duration}</div>
+                    </div>
+                    <div class="video-info">
+                        <h3 class="video-title">${video.title}</h3>
+                        <div class="video-channel">
+                            <img class="channel-avatar" src="https://www.gravatar.com/avatar?d=identicon&s=24" alt="频道头像">
+                            <span class="channel-name">${video.channel}</span>
+                        </div>
+                        <div class="video-meta">
+                            <div class="video-stats">
+                                <span>${video.views}</span>
+                                <span>${video.time}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // 视频卡片点击事件
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.video-card')) {
+                console.log('播放视频');
+            }
+        });
+    </script>
+</body>
+</html> 

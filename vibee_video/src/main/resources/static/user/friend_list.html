@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>好友管理 - Vibee</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="../css/common.css">
+    <style>
+        .friend-section { 
+            background: #fff; 
+            border-radius: 16px; 
+            box-shadow: 0 2px 12px rgba(102,126,234,0.07); 
+            padding: 2rem; 
+            transition: all 0.3s ease;
+        }
+        .friend-section:hover {
+            box-shadow: 0 8px 24px rgba(102,126,234,0.15);
+        }
+        .section-title { 
+            font-size: 1.8rem; 
+            font-weight: 600; 
+            color: #333; 
+            margin-bottom: 1.5rem; 
+        }
+        .friend-list { list-style: none; padding: 0; margin: 0; }
+        .friend-item { 
+            display: flex; 
+            align-items: center; 
+            gap: 1.5rem; 
+            padding: 1.5rem 0; 
+            border-bottom: 1px solid #f0f0f0; 
+            transition: background 0.2s;
+        }
+        .friend-item:hover {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+        .friend-avatar { 
+            width: 56px; 
+            height: 56px; 
+            border-radius: 50%; 
+            object-fit: cover;
+            border: 2px solid #e1e1e1;
+            transition: border 0.2s;
+        }
+        .friend-avatar:hover {
+            border-color: #667eea;
+        }
+        .friend-info { flex: 1; }
+        .friend-nickname { 
+            color: #333; 
+            font-weight: 600; 
+            font-size: 1.1rem; 
+            margin-bottom: 0.3rem;
+        }
+        .friend-intro { 
+            color: #666; 
+            font-size: 0.95rem; 
+            margin-bottom: 0.2rem;
+        }
+        .friend-status { 
+            color: #667eea; 
+            font-size: 0.9rem; 
+            font-weight: 500;
+        }
+        .friend-actions { display: flex; gap: 0.8rem; }
+        .action-btn { 
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%); 
+            color: #fff; 
+            border: none; 
+            border-radius: 8px; 
+            padding: 0.6rem 1.2rem; 
+            font-size: 0.9rem; 
+            font-weight: 500;
+            cursor: pointer; 
+            transition: all 0.2s;
+        }
+        .action-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(102,126,234,0.3);
+        }
+        .action-btn.cancel { 
+            background: #e57373; 
+        }
+        .action-btn.cancel:hover { 
+            background: #d32f2f; 
+            box-shadow: 0 4px 12px rgba(229,115,115,0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">
+            Vibee
+            <span class="bee bee-1">🐝</span>
+            <span class="bee bee-2">🐝</span>
+            <span class="bee bee-3">🐝</span>
+        </div>
+        <div class="header-bg">
+            <span class="bee bee-1">🐝</span>
+            <span class="bee bee-2">🐝</span>
+            <span class="bee bee-3">🐝</span>
+        </div>
+        <div class="user-avatar" tabindex="0">
+            <img class="avatar-img" src="../images/default-avatar.svg" alt="用户头像">
+            <div class="user-menu">
+                <div class="user-menu-item" onclick="window.location.href='../visitor/login.html'">登录</div>
+                <div class="user-menu-item" onclick="window.location.href='../visitor/email_register.html'">注册</div>
+            </div>
+        </div>
+    </div>
+    <div class="layout-container">
+        <div class="sidebar">
+            <div class="sidebar-section">
+                <div class="sidebar-title">主要功能</div>
+                <ul class="sidebar-nav">
+                    <li class="sidebar-nav-item">
+                        <a href="../video/video_initial.html" class="sidebar-nav-link">
+                            <i class="bi bi-house-door"></i>
+                            首页推荐
+                        </a>
+                    </li>
+                    <li class="sidebar-nav-item">
+                        <a href="../video/video_keyword_search.html" class="sidebar-nav-link">
+                            <i class="bi bi-search"></i>
+                            关键词搜索
+                        </a>
+                    </li>
+                    <li class="sidebar-nav-item">
+                        <a href="../video/video_data_metrics.html" class="sidebar-nav-link">
+                            <i class="bi bi-graph-up"></i>
+                            数据统计
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <div class="sidebar-section">
+                <div class="sidebar-title">用户中心</div>
+                <ul class="sidebar-nav">
+                    <li class="sidebar-nav-item">
+                        <a href="edit_profile.html" class="sidebar-nav-link">
+                            <i class="bi bi-person"></i>
+                            个人资料
+                        </a>
+                    </li>
+                    <li class="sidebar-nav-item">
+                        <a href="video_upload.html" class="sidebar-nav-link">
+                            <i class="bi bi-cloud-upload"></i>
+                            视频上传
+                        </a>
+                    </li>
+                    <li class="sidebar-nav-item">
+                        <a href="liked_favorited_videos.html" class="sidebar-nav-link">
+                            <i class="bi bi-heart"></i>
+                            收藏视频
+                        </a>
+                    </li>
+                    <li class="sidebar-nav-item">
+                        <a href="watch_history.html" class="sidebar-nav-link">
+                            <i class="bi bi-clock-history"></i>
+                            观看历史
+                        </a>
+                    </li>
+                    <li class="sidebar-nav-item">
+                        <a href="friend_list.html" class="sidebar-nav-link active">
+                            <i class="bi bi-people"></i>
+                            好友管理
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="main-content">
+            <div class="friend-section">
+                <div class="section-title">我的好友</div>
+                <ul class="friend-list">
+                    <li class="friend-item">
+                        <img class="friend-avatar" src="https://www.gravatar.com/avatar?d=identicon&s=48" alt="好友头像">
+                        <div class="friend-info">
+                            <div class="friend-nickname">小明</div>
+                            <div class="friend-intro">热爱旅行和摄影</div>
+                            <div class="friend-status">已关注</div>
+                        </div>
+                        <div class="friend-actions">
+                            <button class="action-btn cancel">取消关注</button>
+                        </div>
+                    </li>
+                    <li class="friend-item">
+                        <img class="friend-avatar" src="https://www.gravatar.com/avatar?d=wavatar&s=48" alt="好友头像">
+                        <div class="friend-info">
+                            <div class="friend-nickname">小红</div>
+                            <div class="friend-intro">美食达人</div>
+                            <div class="friend-status">已关注</div>
+                        </div>
+                        <div class="friend-actions">
+                            <button class="action-btn cancel">取消关注</button>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 

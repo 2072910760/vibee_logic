@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据统计</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="../css/common.css">
+    <style>
+        /* =================================
+           1. 页面专属内容区样式
+        ==================================== */
+        .content-header {
+            margin-bottom: 2rem;
+        }
+
+        .content-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .content-subtitle {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        /* =================================
+           2. 页面特有组件
+        ==================================== */
+        /* 时间范围选择器 */
+        .time-range {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            background: #fff;
+            padding: 1rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(102,126,234,0.07);
+        }
+        
+        .time-btn {
+            padding: 0.6rem 1.2rem;
+            background: #f3f6fd;
+            border: 1px solid #e1e1e1;
+            border-radius: 8px;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+        }
+        
+        .time-btn:hover,
+        .time-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        /* 5.2 统计卡片 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(102,126,234,0.07);
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            box-shadow: 0 8px 24px rgba(102,126,234,0.15);
+            transform: translateY(-5px);
+        }
+        
+        .stat-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+        
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+        }
+        
+        .stat-icon.views {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .stat-icon.likes {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        
+        .stat-icon.comments {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+        
+        .stat-icon.shares {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
+        
+        .stat-trend {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        
+        .stat-trend.up {
+            color: #4caf50;
+        }
+        
+        .stat-trend.down {
+            color: #f44336;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        /* 5.3 图表区域 */
+        .charts-section {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .chart-card {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(102,126,234,0.07);
+            padding: 1.5rem;
+        }
+        
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .chart-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .chart-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .chart-btn {
+            padding: 0.4rem 0.8rem;
+            background: #f3f6fd;
+            border: 1px solid #e1e1e1;
+            border-radius: 8px;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.85rem;
+        }
+        
+        .chart-btn:hover,
+        .chart-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+        
+        /* 5.4 热门视频列表 */
+        .top-videos {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(102,126,234,0.07);
+            padding: 1.5rem;
+        }
+        
+        .top-videos-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .top-videos-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .video-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .video-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 12px;
+            transition: all 0.2s;
+        }
+        
+        .video-item:hover {
+            background: #f3f6fd;
+        }
+        
+        .video-rank {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #667eea;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        .video-thumbnail {
+            width: 60px;
+            height: 40px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+        
+        .video-details {
+            flex: 1;
+        }
+        
+        .video-title {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 0.2rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 1;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        .video-stats {
+            font-size: 0.8rem;
+            color: #666;
+        }
+        
+        /* =================================
+           3. 响应式调整
+        ==================================== */
+        @media (max-width: 1024px) {
+            .charts-section {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 1rem;
+            }
+
+            .main-content {
+                padding: 1rem;
+            }
+
+            .time-range {
+                flex-wrap: wrap;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">
+            Vibee
+            <span class="bee bee-1">🐝</span>
+            <span class="bee bee-2">🐝</span>
+            <span class="bee bee-3">🐝</span>
+        </div>
+        <div class="user-avatar" tabindex="0">
+            <img class="avatar-img" src="../images/default-avatar.svg" alt="用户头像">
+            <div class="user-menu">
+                <div class="user-menu-item" onclick="window.location.href='../visitor/login.html'">登录</div>
+                <div class="user-menu-item" onclick="window.location.href='../visitor/email_register.html'">注册</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="layout-container">
+        <div class="sidebar">
+            <div class="sidebar-section">
+                <div class="sidebar-title">主要功能</div>
+                <ul class="sidebar-nav">
+                    <li class="sidebar-nav-item">
+                        <a href="video_initial.html" class="sidebar-nav-link">
+                            <i class="bi bi-house-door"></i>
+                            首页推荐
+                        </a>
+                    </li>
+                    <li class="sidebar-nav-item">
+                        <a href="video_keyword_search.html" class="sidebar-nav-link">
+                            <i class="bi bi-search"></i>
+                            关键词搜索
+                        </a>
+                    </li>
+                    <li class="sidebar-nav-item">
+                        <a href="video_data_metrics.html" class="sidebar-nav-link active">
+                            <i class="bi bi-graph-up"></i>
+                            数据统计
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="sidebar-section">
+                <div class="sidebar-title">用户中心</div>
+                <ul class="sidebar-nav">
+                    <li class="sidebar-nav-item">
+                        <a href="../user/edit_profile.html" class="sidebar-nav-link">
+                            <i class="bi bi-person"></i>
+                            个人资料
+                        </a>
+                    </li>
+                    <li class="sidebar-nav-item">
+                        <a href="../user/video_upload.html" class="sidebar-nav-link">
+                            <i class="bi bi-cloud-upload"></i>
+                            视频上传
+                        </a>
+                    </li>
+                    <li class="sidebar-nav-item">
+                        <a href="../user/liked_favorited_videos.html" class="sidebar-nav-link">
+                            <i class="bi bi-heart"></i>
+                            收藏视频
+                        </a>
+                    </li>
+                    <li class="sidebar-nav-item">
+                        <a href="../user/watch_history.html" class="sidebar-nav-link">
+                            <i class="bi bi-clock-history"></i>
+                            观看历史
+                        </a>
+                    </li>
+                    <li class="sidebar-nav-item">
+                        <a href="../user/friend_list.html" class="sidebar-nav-link">
+                            <i class="bi bi-people"></i>
+                            好友管理
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <div class="content-header">
+                <h1 class="content-title">数据统计</h1>
+                <p class="content-subtitle">实时监控平台数据表现和趋势分析</p>
+            </div>
+            
+            <!-- 时间范围选择器 -->
+            <div class="time-range">
+                <button class="time-btn active">今天</button>
+                <button class="time-btn">本周</button>
+                <button class="time-btn">本月</button>
+                <button class="time-btn">本年</button>
+                <button class="time-btn">自定义</button>
+            </div>
+            
+            <!-- 统计卡片 -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon views">
+                            <i class="bi bi-eye"></i>
+                        </div>
+                        <div class="stat-trend up">
+                            <i class="bi bi-arrow-up"></i>
+                            +12.5%
+                        </div>
+                    </div>
+                    <div class="stat-value">1,234,567</div>
+                    <div class="stat-label">总观看次数</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon likes">
+                            <i class="bi bi-heart"></i>
+                        </div>
+                        <div class="stat-trend up">
+                            <i class="bi bi-arrow-up"></i>
+                            +8.3%
+                        </div>
+                    </div>
+                    <div class="stat-value">89,432</div>
+                    <div class="stat-label">总点赞数</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon comments">
+                            <i class="bi bi-chat"></i>
+                        </div>
+                        <div class="stat-trend up">
+                            <i class="bi bi-arrow-up"></i>
+                            +15.7%
+                        </div>
+                    </div>
+                    <div class="stat-value">23,456</div>
+                    <div class="stat-label">总评论数</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon shares">
+                            <i class="bi bi-share"></i>
+                        </div>
+                        <div class="stat-trend down">
+                            <i class="bi bi-arrow-down"></i>
+                            -2.1%
+                        </div>
+                    </div>
+                    <div class="stat-value">12,789</div>
+                    <div class="stat-label">总分享数</div>
+                </div>
+            </div>
+            
+            <!-- 图表区域 -->
+            <div class="charts-section">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div class="chart-title">观看趋势分析</div>
+                        <div class="chart-actions">
+                            <button class="chart-btn active">观看量</button>
+                            <button class="chart-btn">互动率</button>
+                            <button class="chart-btn">留存率</button>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="viewsChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="top-videos">
+                    <div class="top-videos-header">
+                        <div class="top-videos-title">热门视频</div>
+                    </div>
+                    <div class="video-list">
+                        <div class="video-item">
+                            <div class="video-rank">1</div>
+                            <img class="video-thumbnail" src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=120&q=80" alt="视频缩略图">
+                            <div class="video-details">
+                                <div class="video-title">2024年最值得一看的旅行风景视频合集</div>
+                                <div class="video-stats">1.2万次观看 • 3天前</div>
+                            </div>
+                        </div>
+                        
+                        <div class="video-item">
+                            <div class="video-rank">2</div>
+                            <img class="video-thumbnail" src="https://images.unsplash.com/photo-1531297484001-80022131f5a1?auto=format&fit=crop&w=120&q=80" alt="视频缩略图">
+                            <div class="video-details">
+                                <div class="video-title">科技行业的未来发展趋势深度解析</div>
+                                <div class="video-stats">5.6万次观看 • 1周前</div>
+                            </div>
+                        </div>
+                        
+                        <div class="video-item">
+                            <div class="video-rank">3</div>
+                            <img class="video-thumbnail" src="https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=120&q=80" alt="视频缩略图">
+                            <div class="video-details">
+                                <div class="video-title">学习自然风光摄影的实用技巧教程</div>
+                                <div class="video-stats">2.8万次观看 • 2周前</div>
+                            </div>
+                        </div>
+                        
+                        <div class="video-item">
+                            <div class="video-rank">4</div>
+                            <img class="video-thumbnail" src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=120&q=80" alt="视频缩略图">
+                            <div class="video-details">
+                                <div class="video-title">5分钟学会制作美味的家常菜</div>
+                                <div class="video-stats">8.9万次观看 • 5天前</div>
+                            </div>
+                        </div>
+                        
+                        <div class="video-item">
+                            <div class="video-rank">5</div>
+                            <img class="video-thumbnail" src="https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=120&q=80" alt="视频缩略图">
+                            <div class="video-details">
+                                <div class="video-title">游戏开发入门指南：从零开始学习编程</div>
+                                <div class="video-stats">3.4万次观看 • 1周前</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // 时间范围选择器
+        document.querySelectorAll('.time-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                updateCharts();
+            });
+        });
+        
+        // 图表按钮切换
+        document.querySelectorAll('.chart-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const parent = this.closest('.chart-actions');
+                parent.querySelectorAll('.chart-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                updateChartData();
+            });
+        });
+        
+        // 初始化图表
+        const ctx = document.getElementById('viewsChart').getContext('2d');
+        const viewsChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
+                datasets: [{
+                    label: '观看次数',
+                    data: [12000, 19000, 15000, 25000, 22000, 30000, 28000, 35000, 32000, 40000, 38000, 45000],
+                    borderColor: '#667eea',
+                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                },
+                elements: {
+                    point: {
+                        radius: 0
+                    }
+                }
+            }
+        });
+        
+        function updateCharts() {
+            // 这里可以添加根据时间范围更新图表的逻辑
+            console.log('更新图表数据');
+        }
+        
+        function updateChartData() {
+            // 这里可以添加根据选择的指标更新图表的逻辑
+            console.log('更新图表指标');
+        }
+        
+        // 视频项目点击事件
+        document.querySelectorAll('.video-item').forEach(item => {
+            item.addEventListener('click', function() {
+                console.log('查看视频详情');
+            });
+        });
+    </script>
+</body>
+</html> 

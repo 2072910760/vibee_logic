@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>视频上传 - Vibee</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/common.css">
+    <style>
+        /* =================================
+           1. 页面专属内容区样式
+        ==================================== */
+        .content-header {
+            margin-bottom: 2rem;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-subtitle {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        /* =================================
+           2. 上传区域 (Upload Area)
+        ==================================== */
+        .upload-container {
+            background: #fff;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 2px 12px rgba(102,126,234,0.07);
+            margin-bottom: 2rem;
+        }
+        
+        .upload-drop-zone {
+            border: 2px dashed #d1d8e6;
+            border-radius: 16px;
+            padding: 3rem 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+
+        .upload-drop-zone:hover,
+        .upload-drop-zone.dragover {
+            border-color: #667eea;
+            background: rgba(102,126,234,0.05);
+        }
+
+        .upload-icon {
+            font-size: 4rem;
+            color: #667eea;
+            margin-bottom: 1rem;
+        }
+
+        .upload-text {
+            color: #555;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .upload-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 1rem 2rem;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .upload-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102,126,234,0.2);
+        }
+        
+        .file-input {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .upload-form {
+            display: none;
+        }
+
+        /* =================================
+           3. 响应式设计 (Responsive)
+        ==================================== */
+        @media (max-width: 1024px) {
+            .main-content {
+                padding: 1.5rem;
+            }
+
+            .upload-form-container {
+                flex-direction: column;
+            }
+
+            .thumbnail-preview,
+            .video-metadata-form {
+                width: 100%;
+                max-width: none;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .upload-container {
+                padding: 2rem;
+            }
+
+            .upload-drop-zone {
+                padding: 3rem 1rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .form-actions {
+                flex-direction: column;
+            }
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">
+            Vibee
+            <span class="bee bee-1">🐝</span>
+            <span class="bee bee-2">🐝</span>
+            <span class="bee bee-3">🐝</span>
+        </div>
+        <div class="user-avatar" tabindex="0">
+            <img class="avatar-img" src="../images/default-avatar.svg" alt="用户头像">
+            <div class="user-menu">
+                <div class="user-menu-item" onclick="window.location.href='../visitor/login.html'">登录</div>
+                <div class="user-menu-item" onclick="window.location.href='../visitor/email_register.html'">注册</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="layout-container">
+        <div class="sidebar">
+            <div class="sidebar-section">
+                <div class="sidebar-title">主要功能</div>
+                <ul class="sidebar-nav">
+                    <li class="sidebar-nav-item">
+                        <a href="../video/video_initial.html" class="sidebar-nav-link">
+                            <i class="bi bi-house-door"></i>
+                            首页推荐
+                        </a>
+                    </li>
+                    <li class="sidebar-nav-item">
+                        <a href="../video/video_keyword_search.html" class="sidebar-nav-link">
+                            <i class="bi bi-search"></i>
+                            关键词搜索
+                        </a>
+                    </li>
+                    <li class="sidebar-nav-item">
+                        <a href="../video/video_data_metrics.html" class="sidebar-nav-link">
+                    <i class="bi bi-graph-up"></i>
+                            数据统计
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="sidebar-section">
+                <div class="sidebar-title">用户中心</div>
+                <ul class="sidebar-nav">
+                    <li class="sidebar-nav-item">
+                        <a href="edit_profile.html" class="sidebar-nav-link">
+                            <i class="bi bi-person"></i>
+                            个人资料
+                        </a>
+                    </li>
+                    <li class="sidebar-nav-item">
+                        <a href="video_upload.html" class="sidebar-nav-link active">
+                            <i class="bi bi-cloud-upload"></i>
+                            视频上传
+                        </a>
+                    </li>
+                    <li class="sidebar-nav-item">
+                        <a href="liked_favorited_videos.html" class="sidebar-nav-link">
+                            <i class="bi bi-heart"></i>
+                            收藏视频
+                        </a>
+                    </li>
+                    <li class="sidebar-nav-item">
+                        <a href="watch_history.html" class="sidebar-nav-link">
+                            <i class="bi bi-clock-history"></i>
+                            观看历史
+                        </a>
+                    </li>
+                    <li class="sidebar-nav-item">
+                        <a href="friend_list.html" class="sidebar-nav-link">
+                            <i class="bi bi-people"></i>
+                            好友管理
+                        </a>
+                    </li>
+                </ul>
+        </div>
+        </div>
+        
+    <div class="main-content">
+            <div class="content-header">
+                <h1 class="page-title">视频上传</h1>
+                <p class="page-subtitle">分享你的精彩时刻</p>
+            </div>
+            
+            <!-- 上传容器 -->
+            <div class="upload-container">
+                <!-- 拖拽上传区域 -->
+                <div class="upload-drop-zone" id="upload-drop-zone">
+                <i class="bi bi-cloud-upload upload-icon"></i>
+                <div class="upload-text">拖放视频文件到这里，或点击选择文件</div>
+                <button class="upload-button" type="button">选择视频文件</button>
+                <input type="file" class="file-input" id="video-file" accept="video/*">
+                <div class="form-text">支持的格式: MP4, MOV, AVI, MKV (最大2GB)</div>
+            </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 标签页切换
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                
+                const tab = this.dataset.tab;
+                console.log('切换到标签页:', tab);
+                // 这里可以添加实际的标签页切换逻辑
+            });
+        });
+        
+        // 上传选项选择
+        document.querySelectorAll('.option-card').forEach(card => {
+            card.addEventListener('click', function() {
+                document.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
+                this.classList.add('selected');
+                
+                const radio = this.querySelector('.option-radio');
+                radio.checked = true;
+            });
+        });
+        
+        // 文件选择
+        document.getElementById('video-file').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                handleFileSelect(file);
+            }
+        });
+        
+        // 拖拽上传
+        const dropzone = document.getElementById('upload-drop-zone');
+        
+        dropzone.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            this.classList.add('dragover');
+        });
+        
+        dropzone.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            this.classList.remove('dragover');
+        });
+        
+        dropzone.addEventListener('drop', function(e) {
+            e.preventDefault();
+            this.classList.remove('dragover');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFileSelect(files[0]);
+            }
+        });
+        
+        // 处理文件选择
+        function handleFileSelect(file) {
+            // 验证文件类型
+            const allowedTypes = ['video/mp4', 'video/mov', 'video/avi', 'video/mkv'];
+            if (!allowedTypes.includes(file.type)) {
+                alert('不支持的文件格式，请选择 MP4、MOV、AVI 或 MKV 格式的视频文件');
+                return;
+            }
+            
+            // 验证文件大小 (2GB)
+            if (file.size > 2 * 1024 * 1024 * 1024) {
+                alert('文件大小不能超过2GB');
+                return;
+            }
+            
+            // 显示文件信息
+            document.getElementById('upload-file-name').textContent = file.name;
+            document.getElementById('submit-btn').disabled = false;
+            
+            // 模拟上传进度
+            simulateUpload();
+        }
+        
+        // 模拟上传进度
+        function simulateUpload() {
+            const progress = document.getElementById('upload-progress');
+            const progressBar = progress.querySelector('.progress-bar');
+            const percentage = progress.querySelector('#upload-percentage');
+            
+            progress.style.display = 'block';
+            
+            let currentProgress = 0;
+            const interval = setInterval(() => {
+                currentProgress += Math.random() * 10;
+                if (currentProgress >= 100) {
+                    currentProgress = 100;
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        alert('视频上传成功！');
+                        progress.style.display = 'none';
+                        document.getElementById('submit-btn').disabled = true;
+                    }, 500);
+                }
+                
+                progressBar.style.width = currentProgress + '%';
+                percentage.textContent = Math.round(currentProgress) + '%';
+            }, 200);
+        }
+        
+        // 表单提交
+        document.getElementById('upload-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                title: document.getElementById('video-title').value,
+                description: document.getElementById('video-description').value,
+                tags: document.getElementById('video-tags').value,
+                visibility: document.querySelector('input[name="visibility"]:checked').value
+            };
+            
+            console.log('提交上传数据:', formData);
+            alert('视频信息已保存！');
+        });
+    </script>
+</body>
+</html> 

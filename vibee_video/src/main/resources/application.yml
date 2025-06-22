@@ -1,0 +1,83 @@
+server:
+  port: 9588
+  servlet:
+    context-path: /
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+
+spring:
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+    username: vibee_user
+    password: 123456
+    url: jdbc:sqlserver://JARVIS;databaseName=VibeeVideoPlatform;encrypt=true;trustServerCertificate=true
+    druid:
+      # 最大活动连接数量
+      max-active: 20
+      # 获取数据库连接最大等待时间
+      max-wait: 60000
+      # 最小空闲连接数量
+      min-idle: 5
+      # 初始化连接数量
+      initial-size: 5
+      # 连接池空闲连接检测时间间隔
+      time-between-eviction-runs-millis: 60000
+      # 连接池中连接最小生存时间
+      min-evictable-idle-time-millis: 300000
+      # 检测连接是否有效的SQL
+      validation-query: SELECT 1
+      # 申请连接时执行validationQuery检测连接是否有效
+      test-on-borrow: false
+      # 归还连接时执行validationQuery检测连接是否有效
+      test-on-return: false
+      # 申请连接的时候检测，如果空闲时间大于timeBetweenEvictionRunsMillis，执行validationQuery检测连接是否有效
+      test-while-idle: true
+  servlet:
+    multipart:
+      # 启用文件上传功能,默认为true
+      enabled: true
+      # 写入磁盘的阀值，默认为0 当文件小于等于100MB时将文件数据写到内存中,当文件大于100MB,将文件数据写入临时文件中
+      file-size-threshold: 100MB
+      # 文件上传临时数据文件存放目录
+      location: d:\temp
+      # 表示单个文件的最大大小，默认为1MB
+      max-file-size: 1GB
+      # 表示多文件上传时的总大小，默认为10MB
+      max-request-size: 2058MB
+      # 表示是否延迟解析，默认为false
+      resolve-lazily: false
+
+mybatis-plus:
+  mapper-locations: classpath:/mapper/*.xml
+  type-aliases-package: org.example.vibee.entity
+
+# springdoc-openapi项目配置
+springdoc:
+  group-configs:
+    - group: 23软工2班
+      # 扫描包(控制器所在包)
+      packages-to-scan: org.example.vibee.controller
+knife4j:
+  # 开启knife4j接口文档
+  enable: true
+  # 开启登录验证
+  basic:
+    username: admin
+    password: 123456
+    # 开启验证
+    enable: true
+  # API接口文档仅在开发环境、测试环境中有效,生产环境中关闭此功能
+  production: false
+  setting:
+    language: zh_cn
+
+logging:
+  config: classpath:logback-spring.xml
+  charset:
+    console: UTF-8
+    file: UTF-8
+  level:
+    org.example.vibee: debug

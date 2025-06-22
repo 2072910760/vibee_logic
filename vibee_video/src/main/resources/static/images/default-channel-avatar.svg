@@ -1,0 +1,17 @@
+<svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+  <!-- 背景圆形 -->
+  <circle cx="12" cy="12" r="12" fill="#667eea"/>
+  
+  <!-- 头部 -->
+  <circle cx="12" cy="9" r="3.6" fill="white"/>
+  
+  <!-- 身体 -->
+  <path d="M 6 15 Q 6 11 12 11 Q 18 11 18 15 L 18 17 Q 18 19 16 19 L 8 19 Q 6 19 6 17 Z" fill="white"/>
+  
+  <!-- 眼睛 -->
+  <circle cx="11" cy="8.4" r="0.6" fill="#667eea"/>
+  <circle cx="13" cy="8.4" r="0.6" fill="#667eea"/>
+  
+  <!-- 嘴巴 -->
+  <path d="M 11 10 Q 12 10.6 13 10" stroke="#667eea" stroke-width="0.4" fill="none" stroke-linecap="round"/>
+</svg> 

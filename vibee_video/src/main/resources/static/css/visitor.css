@@ -1,0 +1,239 @@
+/* =================================
+   1. 全局和背景样式
+==================================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+body {
+    font-family: 'Microsoft YaHei', sans-serif;
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0eaff 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    position: relative;
+    overflow: hidden;
+}
+/* 背景装饰性模糊元素 */
+body::before, body::after {
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    filter: blur(50px);
+    z-index: 0;
+}
+body::before {
+    width: 300px;
+    height: 300px;
+    top: -70px;
+    left: -70px;
+    background: rgba(173, 216, 230, 0.3);
+    filter: blur(60px);
+}
+body::after {
+    width: 400px;
+    height: 400px;
+    bottom: -100px;
+    right: -100px;
+    background: rgba(255, 204, 255, 0.3);
+    filter: blur(70px);
+}
+
+/* =================================
+   2. 模态框容器和布局
+==================================== */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(173, 216, 230, 0.15);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.login-modal {
+    background-color: #ffffff;
+    border-radius: 20px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+    width: 90%;
+    max-width: 420px;
+    min-height: 480px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+    z-index: 1;
+    animation: fadeInScale 0.5s ease-out forwards;
+}
+
+.modal-header {
+    padding: 25px 30px;
+    background: linear-gradient(90deg, #e3f2fd, #fce4ec);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #333;
+    position: relative;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+.modal-header h2 {
+    margin: 0;
+    text-align: center;
+    letter-spacing: 1px;
+}
+.close-btn {
+    font-size: 2.2rem;
+    cursor: pointer;
+    color: #8d8d8d;
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    transition: color 0.3s ease;
+}
+.close-btn:hover {
+    color: #212121;
+}
+
+.modal-content {
+    display: flex;
+    flex-grow: 1;
+    padding: 40px 35px;
+    justify-content: center;
+    align-items: flex-start;
+    overflow-y: auto;
+}
+
+/* =================================
+   3. 表单和输入控件
+==================================== */
+.account-login-area {
+    width: 100%;
+    max-width: 320px;
+    margin: auto;
+    text-align: center;
+}
+
+.login-sub-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #424242;
+    margin-bottom: 35px;
+    letter-spacing: 0.5px;
+}
+
+.form-group {
+    margin-bottom: 2rem;
+    position: relative;
+    text-align: left;
+}
+.form-group label {
+    display: block;
+    margin-bottom: 0.6rem;
+    color: #616161;
+    font-weight: 500;
+    font-size: 0.95rem;
+}
+.form-group input {
+    width: 100%;
+    padding: 1rem 1.2rem;
+    border: 1px solid #e9e9e9;
+    border-radius: 10px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background-color: #ffffff;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+.form-group input:focus {
+    outline: none;
+    border-color: #2196F3;
+    box-shadow: 0 0 0 2px rgba(33,150,243,0.15);
+    background-color: #ffffff;
+}
+
+/* 表单错误状态 */
+.form-group .error-message {
+    color: #ff1744;
+    font-size: 0.85rem;
+    margin-top: 0.6rem;
+    display: none;
+    text-align: left;
+    font-weight: bold;
+}
+.form-group.error input {
+    border-color: #ff1744;
+    background: #fff8f8;
+}
+.form-group.error .error-message {
+    display: block;
+}
+
+/* =================================
+   4. 功能性组件 (页脚)
+==================================== */
+.modal-footer {
+    text-align: center;
+    padding: 20px 0 30px;
+    font-size: 0.95rem;
+    color: #616161;
+}
+.modal-footer a {
+    color: #42a5f5;
+    text-decoration: none;
+    font-weight: 500;
+}
+.modal-footer a:hover {
+    text-decoration: underline;
+}
+
+/* =================================
+   5. 按钮样式
+==================================== */
+.primary-login-button {
+    width: 100%;
+    padding: 1.1rem;
+    background: linear-gradient(to right, #81d4fa 0%, #42a5f5 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 1.2rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    letter-spacing: 1px;
+    box-shadow: 0 5px 12px rgba(66, 165, 245, 0.25);
+}
+.primary-login-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px rgba(66, 165, 245, 0.35);
+}
+.primary-login-button:disabled {
+    background: #e0e0e0;
+    color: #bdbdbd;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+
+/* =================================
+   6. 动画效果
+==================================== */
+@keyframes fadeInScale {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+} 

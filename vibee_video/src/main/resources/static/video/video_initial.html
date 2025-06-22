@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>视频推荐</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="../css/common.css">
+    <style>
+        /* =================================
+           1. 页面专属内容区样式
+        ==================================== */
+        .content-header {
+            margin-bottom: 2rem;
+        }
+
+        .content-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .content-subtitle {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        /* =================================
+           2. 页面特有组件
+        ==================================== */
+        /* 视频网格 */
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .video-card {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(102,126,234,0.07);
+            overflow: hidden;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .video-card:hover {
+            box-shadow: 0 8px 24px rgba(102,126,234,0.15);
+            transform: translateY(-5px);
+        }
+        
+        .video-thumbnail {
+            position: relative;
+            width: 100%;
+            height: 180px;
+            overflow: hidden;
+        }
+        
+        .video-thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+        
+        .video-card:hover .video-thumbnail img {
+            transform: scale(1.05);
+        }
+        
+        .video-duration {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .video-info {
+            padding: 1.2rem;
+        }
+        
+        .video-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.8rem;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        .video-channel {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.8rem;
+        }
+        
+        .channel-avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+            object-fit: cover;
+        }
+        
+        .channel-name {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .video-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #999;
+            font-size: 0.85rem;
+        }
+        
+        .video-stats {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        /* 分类标签 */
+        .category-tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            overflow-x: auto;
+            padding-bottom: 0.5rem;
+        }
+        
+        .category-tab {
+            padding: 0.6rem 1.2rem;
+            background: #fff;
+            border: 1px solid #e1e1e1;
+            border-radius: 20px;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+            font-size: 0.9rem;
+        }
+        
+        .category-tab:hover,
+        .category-tab.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        
+        /* 5.2 分页 */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        
+        .page-btn {
+            padding: 0 0.5rem;
+            color: #888;
+        }
+
+        /* =================================
+           3. 响应式调整
+        ==================================== */
+        @media (max-width: 1024px) {
+            .video-grid {
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+                gap: 1rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .video-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">
+            Vibee
+            <span class="bee bee-1">🐝</span>
+            <span class="bee bee-2">🐝</span>
+            <span class="bee bee-3">🐝</span>
+        </div>
+        <div class="header-bg">
+            <span class="bee bee-1">🐝</span>
+            <span class="bee bee-2">🐝</span>
+            <span class="bee bee-3">🐝</span>
+        </div>
+        <div class="user-avatar" tabindex="0">
+            <img class="avatar-img" src="../images/default-avatar.svg" alt="用户头像">
+            <div class="user-menu">
+                <div class="user-menu-item" onclick="window.location.href='../visitor/login.html'">登录</div>
+                <div class="user-menu-item" onclick="window.location.href='../visitor/email_register.html'">注册</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="layout-container">
+        <div class="sidebar">
+            <div class="sidebar-section">
+                <div class="sidebar-title">主要功能</div>
+                <ul class="sidebar-nav">
+                    <li class="sidebar-nav-item">
+                        <a href="video_initial.html" class="sidebar-nav-link active">
+                            <i class="bi bi-house-door"></i>
+                            首页推荐
+                        </a>
+                    </li>
+                    <li class="sidebar-nav-item">
+                        <a href="video_keyword_search.html" class="sidebar-nav-link">
+                            <i class="bi bi-search"></i>
+                            关键词搜索
+                        </a>
+                    </li>
+                    <li class="sidebar-nav-item">
+                        <a href="video_data_metrics.html" class="sidebar-nav-link">
+                            <i class="bi bi-graph-up"></i>
+                            数据统计
+                        </a>
+                    </li>
+                </ul>
+    </div>
+            
+            <div class="sidebar-section">
+                <div class="sidebar-title">用户中心</div>
+                <ul class="sidebar-nav">
+                    <li class="sidebar-nav-item">
+                        <a href="../user/edit_profile.html" class="sidebar-nav-link">
+                            <i class="bi bi-person"></i>
+                            个人资料
+                        </a>
+                    </li>
+                    <li class="sidebar-nav-item">
+                        <a href="../user/video_upload.html" class="sidebar-nav-link">
+                            <i class="bi bi-cloud-upload"></i>
+                            视频上传
+                        </a>
+                    </li>
+                    <li class="sidebar-nav-item">
+                        <a href="../user/liked_favorited_videos.html" class="sidebar-nav-link">
+                            <i class="bi bi-heart"></i>
+                            收藏视频
+                        </a>
+                    </li>
+                    <li class="sidebar-nav-item">
+                        <a href="../user/watch_history.html" class="sidebar-nav-link">
+                            <i class="bi bi-clock-history"></i>
+                            观看历史
+                        </a>
+                    </li>
+                    <li class="sidebar-nav-item">
+                        <a href="../user/friend_list.html" class="sidebar-nav-link">
+                            <i class="bi bi-people"></i>
+                            好友管理
+                        </a>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <div class="content-header">
+                <h1 class="content-title">为你推荐</h1>
+                <p class="content-subtitle">基于你的兴趣和观看历史，为你精选优质视频</p>
+            </div>
+            
+            <!-- 分类标签 -->
+            <div class="category-tabs">
+                <div class="category-tab active">全部</div>
+                <div class="category-tab">音乐</div>
+                <div class="category-tab">游戏</div>
+                <div class="category-tab">教育</div>
+                <div class="category-tab">娱乐</div>
+                <div class="category-tab">科技</div>
+                <div class="category-tab">生活</div>
+                <div class="category-tab">体育</div>
+            </div>
+            
+            <!-- 视频网格 -->
+            <div class="video-grid">
+                <div class="video-card" onclick="window.location.href='video_detail.html'">
+                    <div class="video-thumbnail">
+                        <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=400&q=80" alt="视频封面">
+                        <div class="video-duration">12:34</div>
+                    </div>
+                    <div class="video-info">
+                        <h3 class="video-title">2024年最值得一看的旅行风景视频合集</h3>
+                        <div class="video-channel">
+                            <img class="channel-avatar" src="https://www.gravatar.com/avatar?d=identicon&s=24" alt="频道头像">
+                            <span class="channel-name">旅行频道</span>
+                        </div>
+                        <div class="video-meta">
+                            <div class="video-stats">
+                                <span>1.2万次观看</span>
+                                <span>3天前</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="video-card" onclick="window.location.href='video_detail.html'">
+                    <div class="video-thumbnail">
+                        <img src="https://images.unsplash.com/photo-1531297484001-80022131f5a1?auto=format&fit=crop&w=400&q=80" alt="视频封面">
+                        <div class="video-duration">8:45</div>
+                    </div>
+                    <div class="video-info">
+                        <h3 class="video-title">科技行业的未来发展趋势深度解析</h3>
+                        <div class="video-channel">
+                            <img class="channel-avatar" src="https://www.gravatar.com/avatar?d=wavatar&s=24" alt="频道头像">
+                            <span class="channel-name">科技前沿</span>
+                        </div>
+                        <div class="video-meta">
+                            <div class="video-stats">
+                                <span>5.6万次观看</span>
+                                <span>1周前</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="video-card" onclick="window.location.href='video_detail.html'">
+                    <div class="video-thumbnail">
+                        <img src="https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=400&q=80" alt="视频封面">
+                        <div class="video-duration">15:22</div>
+                    </div>
+                    <div class="video-info">
+                        <h3 class="video-title">学习自然风光摄影的实用技巧教程</h3>
+                        <div class="video-channel">
+                            <img class="channel-avatar" src="https://www.gravatar.com/avatar?d=monsterid&s=24" alt="频道头像">
+                            <span class="channel-name">摄影教程</span>
+                        </div>
+                        <div class="video-meta">
+                            <div class="video-stats">
+                                <span>2.8万次观看</span>
+                                <span>2周前</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="video-card" onclick="window.location.href='video_detail.html'">
+                    <div class="video-thumbnail">
+                        <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=400&q=80" alt="视频封面">
+                        <div class="video-duration">6:18</div>
+                    </div>
+                    <div class="video-info">
+                        <h3 class="video-title">5分钟学会制作美味的家常菜</h3>
+                        <div class="video-channel">
+                            <img class="channel-avatar" src="https://www.gravatar.com/avatar?d=retro&s=24" alt="频道头像">
+                            <span class="channel-name">美食达人</span>
+                        </div>
+                        <div class="video-meta">
+                            <div class="video-stats">
+                                <span>8.9万次观看</span>
+                                <span>5天前</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="video-card" onclick="window.location.href='video_detail.html'">
+                    <div class="video-thumbnail">
+                        <img src="https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=400&q=80" alt="视频封面">
+                        <div class="video-duration">22:15</div>
+                    </div>
+                    <div class="video-info">
+                        <h3 class="video-title">游戏开发入门指南：从零开始学习编程</h3>
+                        <div class="video-channel">
+                            <img class="channel-avatar" src="https://www.gravatar.com/avatar?d=robohash&s=24" alt="频道头像">
+                            <span class="channel-name">编程学院</span>
+                        </div>
+                        <div class="video-meta">
+                            <div class="video-stats">
+                                <span>3.4万次观看</span>
+                                <span>1周前</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="video-card" onclick="window.location.href='video_detail.html'">
+                    <div class="video-thumbnail">
+                        <img src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=400&q=80" alt="视频封面">
+                        <div class="video-duration">4:32</div>
+                    </div>
+                    <div class="video-info">
+                        <h3 class="video-title">轻松学会弹奏吉他的基础和弦</h3>
+                        <div class="video-channel">
+                            <img class="channel-avatar" src="https://www.gravatar.com/avatar?d=mp&s=24" alt="频道头像">
+                            <span class="channel-name">音乐教室</span>
+                        </div>
+                        <div class="video-meta">
+                            <div class="video-stats">
+                                <span>6.7万次观看</span>
+                                <span>3天前</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // 分类标签切换
+        document.querySelectorAll('.category-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+        
+        // 视频卡片点击事件
+        document.querySelectorAll('.video-card').forEach(card => {
+            card.addEventListener('click', function() {
+                // 这里可以添加视频播放逻辑
+                console.log('播放视频');
+            });
+        });
+    </script>
+</body>
+</html>

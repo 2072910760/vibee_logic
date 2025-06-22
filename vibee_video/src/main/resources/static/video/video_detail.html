@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>视频详情 - Vibee</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="../css/common.css">
+    <style>
+        /* 页面专属布局 */
+        .main-content-detail {
+            flex: 1;
+            padding: 2rem;
+            background: #f6f8fb;
+            display: flex;
+            gap: 2rem;
+            align-items: flex-start;
+        }
+
+        /* 视频主区域 */
+        .video-main { 
+            flex: 3; 
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .video-player-wrapper,
+        .video-info-wrapper,
+        .comment-section-wrapper {
+            background: #fff; 
+            border-radius: 16px; 
+            box-shadow: 0 2px 12px rgba(102,126,234,0.07); 
+            padding: 2rem; 
+            transition: all 0.3s ease;
+        }
+        .video-player-wrapper:hover,
+        .video-info-wrapper:hover,
+        .comment-section-wrapper:hover {
+            box-shadow: 0 8px 24px rgba(102,126,234,0.15);
+        }
+
+        .video-player { width: 100%; border-radius: 12px; background: #000; aspect-ratio: 16 / 9; }
+        .video-title { font-size: 1.8rem; font-weight: 600; color: #333; margin-bottom: 0.5rem; }
+        .video-meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+        
+        .video-actions { display: flex; gap: 1.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+        .action-btn { 
+            display: flex; 
+            align-items: center; 
+            gap: 0.5rem; 
+            background: #f3f6fd; 
+            border: 1px solid #e1e1e1; 
+            color: #555; 
+            font-size: 1rem; 
+            font-weight: 500;
+            padding: 0.6rem 1.2rem;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .action-btn:hover { background-color: #e6ebfd; border-color: #c7d2fe; }
+        .action-btn.active { background-color: #667eea; color: white; border-color: #667eea; }
+
+        .video-description { line-height: 1.7; color: #444; }
+
+        /* 推荐视频侧边栏 */
+        .recommendation-sidebar { 
+            flex: 1; 
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        .recommendation-card {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(102,126,234,0.06);
+            overflow: hidden;
+            display: flex;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .recommendation-card:hover { transform: translateY(-3px); box-shadow: 0 6px 16px rgba(102,126,234,0.12); }
+        .recommendation-thumbnail { width: 120px; flex-shrink: 0; }
+        .recommendation-thumbnail img { width: 100%; height: 100%; object-fit: cover; }
+        .recommendation-info { padding: 0.8rem; }
+        .recommendation-title { font-size: 0.9rem; font-weight: 500; margin-bottom: 0.3rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .recommendation-meta { font-size: 0.8rem; color: #888; }
+        
+        /* 评论区 */
+        .comment-header { font-size: 1.3rem; font-weight: 600; margin-bottom: 1.5rem; }
+        .comment-form { display: flex; gap: 1rem; margin-bottom: 2rem; }
+        .comment-input { flex-grow: 1; padding: 0.8rem 1rem; border: 2px solid #e1e1e1; border-radius: 10px; font-size: 1rem; transition: all 0.3s; outline: none; }
+        .comment-input:focus { border-color: #667eea; box-shadow: 0 0 0 3px rgba(102,126,234,0.1); }
+        .comment-submit-btn { background: #667eea; color: white; border: none; border-radius: 10px; padding: 0.8rem 1.5rem; font-size: 1rem; font-weight: 500; cursor: pointer; transition: background 0.2s; }
+        .comment-submit-btn:hover { background: #5a6fd8; }
+
+        .comment-list { display: flex; flex-direction: column; gap: 1.5rem; }
+        .comment-item { display: flex; gap: 1rem; }
+        .comment-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
+        .comment-body { flex-grow: 1; }
+        .comment-author { font-weight: 600; margin-right: 0.5rem; }
+        .comment-time { font-size: 0.85rem; color: #888; }
+        .comment-text { margin: 0.5rem 0; }
+        .comment-actions { display: flex; gap: 1rem; font-size: 0.9rem; color: #666; }
+        .comment-actions a { color: #666; text-decoration: none; transition: color 0.2s; }
+        .comment-actions a:hover { color: #667eea; }
+
+        /* 响应式调整 */
+        @media (max-width: 1024px) {
+            .main-content-detail { flex-direction: column; }
+            .video-main, .recommendation-sidebar { flex: none; width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">
+            Vibee
+            <span class="bee bee-1">🐝</span>
+            <span class="bee bee-2">🐝</span>
+            <span class="bee bee-3">🐝</span>
+        </div>
+        <div class="user-avatar" tabindex="0">
+            <img class="avatar-img" src="../images/default-avatar.svg" alt="用户头像">
+            <div class="user-menu">
+                <div class="user-menu-item" onclick="window.location.href='../visitor/login.html'">登录</div>
+                <div class="user-menu-item" onclick="window.location.href='../visitor/email_register.html'">注册</div>
+            </div>
+        </div>
+    </div>
+    <div class="layout-container">
+        <div class="sidebar">
+            <div class="sidebar-section">
+                <div class="sidebar-title">主要功能</div>
+                <ul class="sidebar-nav">
+                    <li class="sidebar-nav-item">
+                        <a href="video_initial.html" class="sidebar-nav-link">
+                            <i class="bi bi-house-door"></i>
+                            首页推荐
+                        </a>
+                    </li>
+                    <li class="sidebar-nav-item">
+                        <a href="video_keyword_search.html" class="sidebar-nav-link">
+                            <i class="bi bi-search"></i>
+                            关键词搜索
+                        </a>
+                    </li>
+                    <li class="sidebar-nav-item">
+                        <a href="video_data_metrics.html" class="sidebar-nav-link">
+                            <i class="bi bi-graph-up"></i>
+                            数据统计
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <div class="sidebar-section">
+                <div class="sidebar-title">用户中心</div>
+                <ul class="sidebar-nav">
+                    <li class="sidebar-nav-item">
+                        <a href="../user/edit_profile.html" class="sidebar-nav-link">
+                            <i class="bi bi-person"></i>
+                            个人资料
+                        </a>
+                    </li>
+                    <li class="sidebar-nav-item">
+                        <a href="../user/video_upload.html" class="sidebar-nav-link">
+                            <i class="bi bi-cloud-upload"></i>
+                            视频上传
+                        </a>
+                    </li>
+                    <li class="sidebar-nav-item">
+                        <a href="../user/liked_favorited_videos.html" class="sidebar-nav-link">
+                            <i class="bi bi-heart"></i>
+                            收藏视频
+                        </a>
+                    </li>
+                    <li class="sidebar-nav-item">
+                        <a href="../user/watch_history.html" class="sidebar-nav-link">
+                            <i class="bi bi-clock-history"></i>
+                            观看历史
+                        </a>
+                    </li>
+                    <li class="sidebar-nav-item">
+                        <a href="../user/friend_list.html" class="sidebar-nav-link">
+                            <i class="bi bi-people"></i>
+                            好友管理
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="main-content-detail">
+            <div class="video-main">
+                <div class="video-player-wrapper">
+                    <video class="video-player" src="https://www.w3schools.com/html/mov_bbb.mp4" controls poster="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=400&q=80"></video>
+                </div>
+                <div class="video-info-wrapper">
+                    <div class="video-title">示例视频标题</div>
+                    <div class="video-meta">作者：<span class="author-name">旅行频道</span> <span class="category-tag">旅行</span> | 上传时间：2024-05-01 | 1.2万次观看</div>
+                    <div class="video-actions">
+                        <button class="action-btn" id="likeBtn"><i class="bi bi-hand-thumbs-up"></i>点赞 <span id="likeCount">123</span></button>
+                        <button class="action-btn" id="collectBtn"><i class="bi bi-heart"></i>收藏 <span id="collectCount">45</span></button>
+                    </div>
+                    <div class="video-description">这里是视频的详细描述内容，介绍视频的主要内容、亮点和相关信息。</div>
+                    <div class="author-info">
+                        <div class="author-details">
+                            <img class="author-avatar" src="https://www.gravatar.com/avatar?d=identicon&s=40" alt="作者头像">
+                            <span class="author-name">旅行频道</span>
+                        </div>
+                        <span class="category-tag">旅行</span>
+                    </div>
+                </div>
+                <div class="comment-section-wrapper">
+                    <div class="comment-title">评论区</div>
+                    <form class="comment-form">
+                        <input type="text" class="comment-input" placeholder="说点什么...">
+                        <button type="submit" class="comment-submit">发布</button>
+                    </form>
+                    <ul class="comment-list">
+                        <li class="comment-item">
+                            <div class="comment-avatar"><img src="https://www.gravatar.com/avatar?d=monsterid&s=24" style="width:24px;height:24px;border-radius:50%;"> 小明</div>
+                            <div class="comment-body">
+                                <div class="comment-author">小明</div>
+                                <div class="comment-text">很棒的视频，风景太美了！</div>
+                                <div class="comment-meta">2024-05-02 10:23</div>
+                            </div>
+                            <button class="reply-btn">回复</button>
+                            <ul class="reply-list">
+                                <li class="reply-item">
+                                    <div class="comment-avatar"><img src="https://www.gravatar.com/avatar?d=identicon&s=24" style="width:24px;height:24px;border-radius:50%;"> 频道主</div>
+                                    <div class="comment-text">谢谢支持！</div>
+                                    <div class="comment-meta">2024-05-02 11:00</div>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="comment-item">
+                            <div class="comment-avatar"><img src="https://www.gravatar.com/avatar?d=wavatar&s=24" style="width:24px;height:24px;border-radius:50%;"> 小红</div>
+                            <div class="comment-body">
+                                <div class="comment-author">小红</div>
+                                <div class="comment-text">请问拍摄设备是什么？</div>
+                                <div class="comment-meta">2024-05-02 12:10</div>
+                            </div>
+                            <button class="reply-btn">回复</button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="video-recommendation">
+                <div class="recommend-title">推荐视频</div>
+                <ul class="recommend-list">
+                    <li class="recommend-video-card" onclick="window.location.href='video_detail.html'">
+                        <img class="recommend-video-card img" src="https://images.unsplash.com/photo-1531297484001-80022131f5a1?auto=format&fit=crop&w=400&q=80" alt="推荐视频">
+                        <div class="recommend-video-info">
+                            <div class="recommend-video-title">科技行业的未来发展趋势深度解析</div>
+                            <div class="recommend-video-uploader">科技前沿 | 5.6万次观看</div>
+                            <div class="recommend-video-stats">5.6万次观看</div>
+                        </div>
+                    </li>
+                    <li class="recommend-video-card" onclick="window.location.href='video_detail.html'">
+                        <img class="recommend-video-card img" src="https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=400&q=80" alt="推荐视频">
+                        <div class="recommend-video-info">
+                            <div class="recommend-video-title">学习自然风光摄影的实用技巧教程</div>
+                            <div class="recommend-video-uploader">摄影教程 | 2.8万次观看</div>
+                            <div class="recommend-video-stats">2.8万次观看</div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <script>
+        // 点赞功能
+        document.getElementById('likeBtn').addEventListener('click', function() {
+            const btn = this;
+            const countSpan = document.getElementById('likeCount');
+            const currentCount = parseInt(countSpan.textContent);
+            
+            if (btn.classList.contains('active')) {
+                btn.classList.remove('active');
+                countSpan.textContent = currentCount - 1;
+            } else {
+                btn.classList.add('active');
+                countSpan.textContent = currentCount + 1;
+            }
+        });
+        
+        // 收藏功能
+        document.getElementById('collectBtn').addEventListener('click', function() {
+            const btn = this;
+            const countSpan = document.getElementById('collectCount');
+            const currentCount = parseInt(countSpan.textContent);
+            
+            if (btn.classList.contains('active')) {
+                btn.classList.remove('active');
+                countSpan.textContent = currentCount - 1;
+            } else {
+                btn.classList.add('active');
+                countSpan.textContent = currentCount + 1;
+            }
+        });
+        
+        // 评论表单提交
+        document.querySelector('.comment-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const input = this.querySelector('.comment-input');
+            const content = input.value.trim();
+            
+            if (content) {
+                // 这里可以添加发送评论到服务器的逻辑
+                console.log('发布评论:', content);
+                input.value = '';
+                alert('评论发布成功！');
+            }
+        });
+        
+        // 回复按钮功能
+        document.querySelectorAll('.reply-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const commentItem = this.closest('.comment-item');
+                const replyList = commentItem.querySelector('.reply-list');
+                
+                if (replyList.style.display === 'none' || !replyList.style.display) {
+                    replyList.style.display = 'block';
+                } else {
+                    replyList.style.display = 'none';
+                }
+            });
+        });
+    </script>
+</body>
+</html> 
