@@ -1,4 +1,4 @@
-package com.neuedu.xinxin.util;
+package org.example.vibee.util;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;

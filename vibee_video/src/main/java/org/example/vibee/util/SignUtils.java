@@ -1,4 +1,4 @@
-package com.neuedu.xinxin.util;
+package org.example.vibee.util;
 
 import java.util.Iterator;
 import java.util.Map;

@@ -1,4 +1,4 @@
-package com.neuedu.xinxin.util;
+package org.example.vibee.util;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKeyFactory;

@@ -1,4 +1,4 @@
-package com.neuedu.xinxin.util;
+package org.example.vibee.util;
 
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;

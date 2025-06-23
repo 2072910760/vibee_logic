@@ -81,3 +81,7 @@ logging:
     file: UTF-8
   level:
     org.example.vibee: debug
+
+# 自定义配置
+file:
+  upload-dir: D:/vibee_videos # 视频上传的物理根目录

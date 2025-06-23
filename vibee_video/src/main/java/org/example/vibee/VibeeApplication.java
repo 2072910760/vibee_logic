@@ -12,10 +12,19 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.format.FormatterRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.beans.factory.annotation.Value;
+import org.mybatis.spring.annotation.MapperScan;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @SpringBootApplication
 @Configuration
+@MapperScan("org.example.vibee.dao")
+@EnableTransactionManagement
 public class VibeeApplication implements WebMvcConfigurer {
+    
+    @Value("${file.upload-dir}")
+    private String uploadDir;
     
     public static void main(String[] args) {
         SpringApplication.run(VibeeApplication.class, args);
@@ -39,6 +48,12 @@ public class VibeeApplication implements WebMvcConfigurer {
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(new LoginCheckedInterceptor())
                 .addPathPatterns("/**")
-                .excludePathPatterns("/login", "/register", "/error", "/", "/test", "/index.html", "/static/**", "/css/**", "/js/**", "/images/**", "/doc.html");
+                .excludePathPatterns("/user/login", "/user/register", "/uploads/**", "/login", "/register", "/error", "/", "/test", "/index.html", "/static/**", "/css/**", "/js/**", "/images/**", "/doc.html");
+    }
+
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        registry.addResourceHandler("/uploads/**")
+                .addResourceLocations("file:" + uploadDir + "/");
     }
 }
