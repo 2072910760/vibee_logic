@@ -304,60 +304,48 @@
                 alert('不支持的文件格式，请选择 MP4、MOV、AVI 或 MKV 格式的视频文件');
                 return;
             }
-            
             // 验证文件大小 (2GB)
             if (file.size > 2 * 1024 * 1024 * 1024) {
                 alert('文件大小不能超过2GB');
                 return;
             }
-            
             // 显示文件信息
             document.getElementById('upload-file-name').textContent = file.name;
             document.getElementById('submit-btn').disabled = false;
-            
-            // 模拟上传进度
-            simulateUpload();
-        }
-        
-        // 模拟上传进度
-        function simulateUpload() {
-            const progress = document.getElementById('upload-progress');
-            const progressBar = progress.querySelector('.progress-bar');
-            const percentage = progress.querySelector('#upload-percentage');
-            
-            progress.style.display = 'block';
-            
-            let currentProgress = 0;
-            const interval = setInterval(() => {
-                currentProgress += Math.random() * 10;
-                if (currentProgress >= 100) {
-                    currentProgress = 100;
-                    clearInterval(interval);
-                    setTimeout(() => {
-                        alert('视频上传成功！');
-                        progress.style.display = 'none';
-                        document.getElementById('submit-btn').disabled = true;
-                    }, 500);
-                }
-                
-                progressBar.style.width = currentProgress + '%';
-                percentage.textContent = Math.round(currentProgress) + '%';
-            }, 200);
+            // 保存文件到全局变量
+            window.selectedVideoFile = file;
         }
         
         // 表单提交
-        document.getElementById('upload-form').addEventListener('submit', function(e) {
+        document.getElementById('upload-form').addEventListener('submit', async function(e) {
             e.preventDefault();
-            
-            const formData = {
-                title: document.getElementById('video-title').value,
-                description: document.getElementById('video-description').value,
-                tags: document.getElementById('video-tags').value,
-                visibility: document.querySelector('input[name="visibility"]:checked').value
-            };
-            
-            console.log('提交上传数据:', formData);
-            alert('视频信息已保存！');
+            const file = window.selectedVideoFile;
+            if (!file) {
+                alert('请先选择视频文件');
+                return;
+            }
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('title', document.getElementById('video-title').value);
+            formData.append('description', document.getElementById('video-description').value);
+            formData.append('tags', document.getElementById('video-tags').value);
+            formData.append('visibility', document.querySelector('input[name="visibility"]:checked').value);
+            try {
+                const response = await fetch('http://localhost:9588/api/video/upload', {
+                    method: 'POST',
+                    body: formData,
+                    credentials: 'include'
+                });
+                const result = await response.json();
+                if (result.code === 0) {
+                    alert('视频上传成功！');
+                    // 可选：跳转或重置表单
+                } else {
+                    alert(result.msg || '上传失败');
+                }
+            } catch (error) {
+                alert('上传失败，请检查网络');
+            }
         });
     </script>
 </body>

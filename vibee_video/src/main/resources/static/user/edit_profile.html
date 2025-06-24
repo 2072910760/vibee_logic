@@ -440,28 +440,44 @@
 
 <script>
         // 头像上传功能
-        document.getElementById('avatar-input').addEventListener('change', function(e) {
+        document.getElementById('avatar-input').addEventListener('change', async function(e) {
             const file = e.target.files[0];
             if (file) {
                 if (file.size > 2 * 1024 * 1024) {
                     alert('文件大小不能超过2MB');
                     return;
                 }
-                
+                // 预览
                 const reader = new FileReader();
-                reader.onload = function(e) {
-                    document.getElementById('avatar-preview').src = e.target.result;
+                reader.onload = function(evt) {
+                    document.getElementById('avatar-preview').src = evt.target.result;
                 };
                 reader.readAsDataURL(file);
+                // 实际上传
+                const formData = new FormData();
+                formData.append('avatar', file);
+                try {
+                    const response = await fetch('http://localhost:9588/user/uploadAvatar', {
+                        method: 'POST',
+                        body: formData,
+                        credentials: 'include'
+                    });
+                    const result = await response.json();
+                    if (result.code === 0) {
+                        alert('头像上传成功！');
+                    } else {
+                        alert(result.msg || '头像上传失败');
+                    }
+                } catch (error) {
+                    alert('头像上传失败，请检查网络');
+                }
             }
         });
         
-        // 表单提交
-        document.getElementById('profile-form').addEventListener('submit', function(e) {
-        e.preventDefault();
-
-        // 收集表单数据
-            const formData = {
+        // 资料保存
+        document.getElementById('profile-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const data = {
                 username: document.getElementById('username').value,
                 nickname: document.getElementById('nickname').value,
                 bio: document.getElementById('bio').value,
@@ -470,10 +486,24 @@
                 profileVisibility: document.getElementById('profile-visibility').value,
                 commentPermission: document.getElementById('comment-permission').value
             };
-
-            // 这里可以添加实际的表单提交逻辑
-            console.log('提交表单数据:', formData);
-            alert('个人资料更新成功！');
+            try {
+                const response = await fetch('http://localhost:9588/user/updateProfile', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data),
+                    credentials: 'include'
+                });
+                const result = await response.json();
+                if (result.code === 0) {
+                    alert('资料保存成功！');
+                } else {
+                    alert(result.msg || '保存失败');
+                }
+            } catch (error) {
+                alert('保存失败，请检查网络');
+            }
         });
         
         // 重置表单

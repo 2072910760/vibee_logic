@@ -1,5 +1,7 @@
 package org.example.vibee.controller;
 
+import jakarta.servlet.http.HttpSession;
+import org.example.vibee.entity.User;
 import org.example.vibee.entity.VideoLike;
 import org.example.vibee.service.VideoLikeService;
 import org.example.vibee.vo.ResponseData;
@@ -19,9 +21,12 @@ public class VideoLikeController {
      * 点赞视频
      */
     @PostMapping("/add")
-    public ResponseData likeVideo(@RequestBody VideoLike videoLike) {
-        if (videoLike.getUserId() == null || videoLike.getVideoId() == null) {
-            return ResponseData.missParam("用户ID或视频ID");
+    public ResponseData likeVideo(@RequestBody VideoLike videoLike, HttpSession session) {
+        User currentUser = (User) session.getAttribute("currentUser");
+        videoLike.setUserId(currentUser.getUserId());
+
+        if (videoLike.getVideoId() == null) {
+            return ResponseData.missParam("视频ID");
         }
         int result = videoLikeService.like(videoLike);
         if (result == 0) {
@@ -34,8 +39,9 @@ public class VideoLikeController {
      * 取消点赞
      */
     @DeleteMapping("/cancel")
-    public ResponseData unlikeVideo(@RequestParam Integer userId, @RequestParam Integer videoId) {
-        videoLikeService.unlike(userId, videoId);
+    public ResponseData unlikeVideo(@RequestParam Integer videoId, HttpSession session) {
+        User currentUser = (User) session.getAttribute("currentUser");
+        videoLikeService.unlike(currentUser.getUserId(), videoId);
         return ResponseData.success("取消点赞成功");
     }
 
@@ -43,17 +49,19 @@ public class VideoLikeController {
      * 检查是否已点赞
      */
     @GetMapping("/check")
-    public ResponseData checkLike(@RequestParam Integer userId, @RequestParam Integer videoId) {
-        boolean hasLiked = videoLikeService.hasLiked(userId, videoId);
+    public ResponseData checkLike(@RequestParam Integer videoId, HttpSession session) {
+        User currentUser = (User) session.getAttribute("currentUser");
+        boolean hasLiked = videoLikeService.hasLiked(currentUser.getUserId(), videoId);
         return ResponseData.success(hasLiked);
     }
 
     /**
-     * 获取用户点赞列表
+     * 获取当前登录用户的点赞列表
      */
-    @GetMapping("/user/{userId}")
-    public ResponseData getUserLikes(@PathVariable Integer userId) {
-        List<VideoLike> userLikes = videoLikeService.getUserLikes(userId);
+    @GetMapping("/list")
+    public ResponseData getCurrentUserLikes(HttpSession session) {
+        User currentUser = (User) session.getAttribute("currentUser");
+        List<VideoLike> userLikes = videoLikeService.getUserLikes(currentUser.getUserId());
         return ResponseData.success(userLikes);
     }
 } 

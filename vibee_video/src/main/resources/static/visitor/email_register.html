@@ -136,6 +136,11 @@
                             <input type="email" id="email" name="email" placeholder="请输入邮箱" required>
                             <div class="error-message">请输入有效的邮箱地址</div>
                         </div>
+                        <div class="form-group">
+                            <label for="nickname">昵称</label>
+                            <input type="text" id="nickname" name="nickname" placeholder="请输入昵称" required>
+                            <div class="error-message">请输入昵称</div>
+                        </div>
                         <div class="form-group with-button">
                             <input type="text" id="verificationCode" name="verificationCode" placeholder="请输入验证码" required>
                             <button type="button" class="send-code-button" id="sendCodeBtn">发送验证码</button>
@@ -172,6 +177,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             const registerForm = document.getElementById('registerForm');
             const emailInput = document.getElementById('email');
+            const nicknameInput = document.getElementById('nickname');
             const verificationCodeInput = document.getElementById('verificationCode');
             const passwordInput = document.getElementById('password');
             const confirmPasswordInput = document.getElementById('confirmPassword');
@@ -223,19 +229,28 @@
 
             sendCodeBtn.addEventListener('click', async function() {
                 const email = emailInput.value;
-                
+                const type = 'register';
                 if (!validateEmail(email)) {
                     showError(emailInput, '请输入有效的邮箱地址');
                     return;
                 }
-
                 clearError(emailInput);
                 startCountdown();
-
                 try {
-                    // 这里添加发送验证码的请求
-                    await new Promise(resolve => setTimeout(resolve, 1000)); // 模拟请求
-                    showToast('验证码已发送到您的邮箱');
+                    // 正确的参数传递方式：URL查询参数
+                    const response = await fetch('http://localhost:9588/user/sendVerificationCode?email=' + encodeURIComponent(email) + '&type=' + encodeURIComponent(type), {
+                        method: 'POST',
+                        credentials: 'include'
+                    });
+                    const result = await response.json();
+                    if (result.code === 200) {
+                        showToast('验证码已发送到您的邮箱');
+                    } else {
+                        showToast(result.message || '发送失败，请重试');
+                        clearInterval(timer);
+                        sendCodeBtn.disabled = false;
+                        sendCodeBtn.textContent = '发送验证码';
+                    }
                 } catch (error) {
                     showToast('发送失败，请重试');
                     clearInterval(timer);
@@ -256,6 +271,14 @@
                     isValid = false;
                 } else {
                     clearError(emailInput);
+                }
+
+                // 验证昵称
+                if (!nicknameInput.value) {
+                    showError(nicknameInput, '请输入昵称');
+                    isValid = false;
+                } else {
+                    clearError(nicknameInput);
                 }
 
                 // 验证验证码
@@ -289,14 +312,33 @@
                 registerButton.textContent = '注册中...';
 
                 try {
-                    // 这里添加实际的注册请求
-                    await new Promise(resolve => setTimeout(resolve, 1500)); // 模拟请求
-                    
-                    showToast('注册成功！');
-                    // 注册成功后的跳转
-                    setTimeout(() => {
-                        window.location.href = '/login.html';
-                    }, 1000);
+                    // 实际注册请求，verificationCode用URL参数
+                    const response = await fetch('http://localhost:9588/user/register?verificationCode=' + encodeURIComponent(verificationCodeInput.value), {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            email: emailInput.value,
+                            password: passwordInput.value,
+                            nickname: nicknameInput.value
+                        }),
+                        credentials: 'include'
+                    });
+                    const result = await response.json();
+                    if (result.code === 200) {
+                        showToast('注册成功！', 2000);
+                        setTimeout(() => {
+                            window.location.href = 'login.html';
+                        }, 2000);
+                    } else {
+                        showError(emailInput, result.message || '注册失败');
+                        showError(verificationCodeInput, result.message || '注册失败');
+                        showError(passwordInput, result.message || '注册失败');
+                        showError(confirmPasswordInput, result.message || '注册失败');
+                        showError(nicknameInput, result.message || '注册失败');
+                        showToast(result.message || '注册失败，请重试', 3000);
+                    }
                 } catch (error) {
                     showToast('注册失败，请重试');
                 } finally {

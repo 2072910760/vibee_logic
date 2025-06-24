@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.example.vibee.dao.VerificationCodeMapper">
+
+    <resultMap id="BaseResultMap" type="org.example.vibee.entity.VerificationCode">
+        <id column="id" jdbcType="INTEGER" property="id" />
+        <result column="email" jdbcType="VARCHAR" property="email" />
+        <result column="code" jdbcType="VARCHAR" property="code" />
+        <result column="type" jdbcType="VARCHAR" property="type" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="expire_time" jdbcType="TIMESTAMP" property="expireTime" />
+        <result column="used" jdbcType="BIT" property="used" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, email, code, type, create_time, expire_time, used
+    </sql>
+
+    <!--suppress SqlResolve, SqlDialectInspection -->
+    <insert id="insert" parameterType="org.example.vibee.entity.VerificationCode">
+        <selectKey keyProperty="id" resultType="java.lang.Integer" order="AFTER">
+            SELECT SCOPE_IDENTITY()
+        </selectKey>
+        INSERT INTO verification_code (email, code, type, create_time, expire_time, used)
+        VALUES (#{email}, #{code}, #{type}, #{createTime}, #{expireTime}, #{used})
+    </insert>
+
+    <select id="selectLatestByEmailAndType" resultMap="BaseResultMap">
+        SELECT TOP 1
+        <include refid="Base_Column_List" />
+        FROM verification_code
+        WHERE email = #{email} AND type = #{type}
+        ORDER BY create_time DESC
+    </select>
+
+    <select id="selectByEmailAndCodeAndType" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM verification_code
+        WHERE email = #{email} AND code = #{code} AND type = #{type}
+    </select>
+
+    <update id="updateUsed">
+        UPDATE verification_code
+        SET used = 1
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteExpired">
+        DELETE FROM verification_code
+        WHERE expire_time &lt; #{currentTime}
+    </delete>
+
+</mapper> 

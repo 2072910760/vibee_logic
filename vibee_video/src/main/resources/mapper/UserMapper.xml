@@ -77,7 +77,7 @@
       distinct
     </if>
     <include refid="Base_Column_List" />
-    from user
+    from [user]
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
@@ -88,21 +88,21 @@
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
-    from user
+    from [user]
     where user_id = #{userId,jdbcType=INTEGER}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
-    delete from user
+    delete from [user]
     where user_id = #{userId,jdbcType=INTEGER}
   </delete>
   <delete id="deleteByExample" parameterType="org.example.vibee.entity.UserExample">
-    delete from user
+    delete from [user]
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
   <insert id="insert" keyColumn="user_id" keyProperty="userId" parameterType="org.example.vibee.entity.User" useGeneratedKeys="true">
-    insert into user (email, password, nickname, 
+    insert into [user] (email, password, nickname, 
       introduction, avatar_url, user_status
       )
     values (#{email,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR}, #{nickname,jdbcType=VARCHAR}, 
@@ -110,7 +110,7 @@
       )
   </insert>
   <insert id="insertSelective" keyColumn="user_id" keyProperty="userId" parameterType="org.example.vibee.entity.User" useGeneratedKeys="true">
-    insert into user
+    insert into [user]
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="email != null">
         email,
@@ -153,13 +153,13 @@
     </trim>
   </insert>
   <select id="countByExample" parameterType="org.example.vibee.entity.UserExample" resultType="java.lang.Long">
-    select count(*) from user
+    select count(*) from [user]
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </select>
   <update id="updateByExampleSelective" parameterType="map">
-    update user
+    update [user]
     <set>
       <if test="record.userId != null">
         user_id = #{record.userId,jdbcType=INTEGER},
@@ -188,7 +188,7 @@
     </if>
   </update>
   <update id="updateByExample" parameterType="map">
-    update user
+    update [user]
     set user_id = #{record.userId,jdbcType=INTEGER},
       email = #{record.email,jdbcType=VARCHAR},
       password = #{record.password,jdbcType=VARCHAR},
@@ -201,7 +201,7 @@
     </if>
   </update>
   <update id="updateByPrimaryKeySelective" parameterType="org.example.vibee.entity.User">
-    update user
+    update [user]
     <set>
       <if test="email != null">
         email = #{email,jdbcType=VARCHAR},
@@ -225,7 +225,7 @@
     where user_id = #{userId,jdbcType=INTEGER}
   </update>
   <update id="updateByPrimaryKey" parameterType="org.example.vibee.entity.User">
-    update user
+    update [user]
     set email = #{email,jdbcType=VARCHAR},
       password = #{password,jdbcType=VARCHAR},
       nickname = #{nickname,jdbcType=VARCHAR},

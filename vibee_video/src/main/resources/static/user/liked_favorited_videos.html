@@ -495,6 +495,59 @@
                 }
             });
         });
+        
+        // 点赞/取消点赞
+        document.querySelectorAll('.bi-heart, .bi-heart-fill').forEach(function(btn) {
+            btn.addEventListener('click', async function(e) {
+                e.stopPropagation();
+                const videoCard = this.closest('.video-card');
+                const videoId = videoCard ? videoCard.getAttribute('data-video-id') : null;
+                if (!videoId) return;
+                const isLiked = this.classList.contains('bi-heart-fill');
+                const action = isLiked ? 'unlike' : 'like';
+                try {
+                    const response = await fetch('http://localhost:9588/video/like?videoId=' + encodeURIComponent(videoId) + '&action=' + encodeURIComponent(action), {
+                        method: 'POST',
+                        credentials: 'include'
+                    });
+                    const result = await response.json();
+                    if (result.code === 0) {
+                        alert(action === 'like' ? '点赞成功' : '已取消点赞');
+                        // 可选：切换icon
+                    } else {
+                        alert(result.msg || '操作失败');
+                    }
+                } catch (error) {
+                    alert('操作失败，请检查网络');
+                }
+            });
+        });
+        // 收藏/取消收藏
+        document.querySelectorAll('.bi-bookmark, .bi-bookmark-fill').forEach(function(btn) {
+            btn.addEventListener('click', async function(e) {
+                e.stopPropagation();
+                const videoCard = this.closest('.video-card');
+                const videoId = videoCard ? videoCard.getAttribute('data-video-id') : null;
+                if (!videoId) return;
+                const isFavorited = this.classList.contains('bi-bookmark-fill');
+                const action = isFavorited ? 'unfavorite' : 'favorite';
+                try {
+                    const response = await fetch('http://localhost:9588/video/favorite?videoId=' + encodeURIComponent(videoId) + '&action=' + encodeURIComponent(action), {
+                        method: 'POST',
+                        credentials: 'include'
+                    });
+                    const result = await response.json();
+                    if (result.code === 0) {
+                        alert(action === 'favorite' ? '收藏成功' : '已取消收藏');
+                        // 可选：切换icon
+                    } else {
+                        alert(result.msg || '操作失败');
+                    }
+                } catch (error) {
+                    alert('操作失败，请检查网络');
+                }
+            });
+        });
     </script>
 </body>
 </html> 

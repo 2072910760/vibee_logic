@@ -52,4 +52,19 @@ public class UserServiceImpl implements UserService {
     public User selectById(Integer userId) {
         return userMapper.selectByPrimaryKey(userId);
     }
+
+    @Override
+    public boolean resetPassword(String email, String newPassword) {
+        User user = selectByEmail(email);
+        if (user == null) {
+            return false; // 用户不存在
+        }
+        
+        // 对密码进行MD5加密
+        user.setPassword(MD5.getMD5(newPassword));
+        
+        // 更新用户密码
+        int result = userMapper.updateByPrimaryKeySelective(user);
+        return result > 0;
+    }
 } 

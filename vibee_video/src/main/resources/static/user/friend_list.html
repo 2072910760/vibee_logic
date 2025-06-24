@@ -185,7 +185,7 @@
                             <div class="friend-status">已关注</div>
                         </div>
                         <div class="friend-actions">
-                            <button class="action-btn cancel">取消关注</button>
+                            <button class="action-btn cancel" data-friend-id="1">取消关注</button>
                         </div>
                     </li>
                     <li class="friend-item">
@@ -196,12 +196,38 @@
                             <div class="friend-status">已关注</div>
                         </div>
                         <div class="friend-actions">
-                            <button class="action-btn cancel">取消关注</button>
+                            <button class="action-btn cancel" data-friend-id="2">取消关注</button>
                         </div>
                     </li>
                 </ul>
             </div>
         </div>
     </div>
+    <script>
+        // 取消关注
+        document.querySelectorAll('.action-btn.cancel').forEach(function(btn, idx) {
+            btn.addEventListener('click', async function() {
+                // 假设friendId可通过data-friend-id属性获取，实际项目需动态渲染
+                const friendId = this.getAttribute('data-friend-id') || (idx+1); // 示例
+                if (!confirm('确定要取消关注该好友吗？')) return;
+                try {
+                    const response = await fetch('http://localhost:9588/friend/remove?friendId=' + encodeURIComponent(friendId), {
+                        method: 'POST',
+                        credentials: 'include'
+                    });
+                    const result = await response.json();
+                    if (result.code === 0) {
+                        alert('已取消关注');
+                        // 可选：移除该好友项
+                        this.closest('.friend-item').remove();
+                    } else {
+                        alert(result.msg || '操作失败');
+                    }
+                } catch (error) {
+                    alert('操作失败，请检查网络');
+                }
+            });
+        });
+    </script>
 </body>
 </html> 

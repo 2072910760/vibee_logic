@@ -536,16 +536,28 @@
             // 这里可以添加实际的筛选逻辑
         }
         
-        // 删除历史记录
-        document.querySelectorAll('.card-action-btn').forEach(btn => {
-            btn.addEventListener('click', function(e) {
+        // 删除单条历史
+        document.querySelectorAll('.card-action-btn[title="删除记录"]').forEach(function(btn) {
+            btn.addEventListener('click', async function(e) {
                 e.stopPropagation();
-                const card = this.closest('.video-card');
-                if (confirm('确定要删除这条观看记录吗？')) {
-                    card.style.animation = 'fadeOut 0.3s ease';
-                setTimeout(() => {
-                        card.remove();
-                }, 300);
+                const videoCard = this.closest('.video-card');
+                const historyId = videoCard ? videoCard.getAttribute('data-history-id') : null;
+                if (!historyId) return;
+                if (!confirm('确定要删除该条观看历史吗？')) return;
+                try {
+                    const response = await fetch('http://localhost:9588/history/delete?historyId=' + encodeURIComponent(historyId), {
+                        method: 'POST',
+                        credentials: 'include'
+                    });
+                    const result = await response.json();
+                    if (result.code === 0) {
+                        alert('已删除');
+                        videoCard.remove();
+                    } else {
+                        alert(result.msg || '操作失败');
+                    }
+                } catch (error) {
+                    alert('操作失败，请检查网络');
                 }
             });
         });
@@ -557,28 +569,23 @@
             });
         });
         
-        // 清空历史按钮
-        document.querySelector('.history-action-btn.danger').addEventListener('click', function() {
-            if (confirm('确定要清空所有观看历史吗？此操作不可恢复。')) {
-                document.querySelectorAll('.video-card').forEach(card => {
-                    card.style.animation = 'fadeOut 0.3s ease';
+        // 清空历史
+        document.querySelector('.history-action-btn.danger')?.addEventListener('click', async function() {
+            if (!confirm('确定要清空所有观看历史吗？')) return;
+            try {
+                const response = await fetch('http://localhost:9588/history/clear', {
+                    method: 'POST',
+                    credentials: 'include'
                 });
-                setTimeout(() => {
-                    document.querySelectorAll('.video-card').forEach(card => card.remove());
-                    // 显示空状态
-                    const mainContent = document.querySelector('.main-content');
-                    mainContent.innerHTML = `
-                        <div class="content-header">
-                            <h1 class="content-title">观看历史</h1>
-                            <p class="content-subtitle">查看你最近观看的视频记录</p>
-                        </div>
-                            <div class="empty-state">
-                                <i class="bi bi-clock-history"></i>
-                                <h3>暂无观看历史</h3>
-                            <p>你还没有观看过任何视频，开始探索精彩内容吧！</p>
-                            </div>
-                        `;
-                }, 300);
+                const result = await response.json();
+                if (result.code === 0) {
+                    alert('已清空所有观看历史');
+                    // 可选：刷新页面或清空前端列表
+                } else {
+                    alert(result.msg || '操作失败');
+                }
+            } catch (error) {
+                alert('操作失败，请检查网络');
             }
         });
         
